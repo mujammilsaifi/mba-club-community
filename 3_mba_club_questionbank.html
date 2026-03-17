@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBA Club — Question Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #FF4D00;
+  --brand-dark: #CC3D00;
+  --brand-light: #FFF3EE;
+  --dark: #0F172A;
+  --text: #1a1a2e;
+  --text-2: #64748b;
+  --text-3: #94a3b8;
+  --bg: #f8f7f4;
+  --card: #ffffff;
+  --border: #e8e5df;
+  --border-2: #d1cdc6;
+  --green: #059669;
+  --green-bg: #ECFDF5;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --yellow: #D97706;
+  --yellow-bg: #FFFBEB;
+  --blue: #2563EB;
+  --blue-bg: #EFF6FF;
+  --purple: #7C3AED;
+  --purple-bg: #F5F3FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+
+/* NAV */
+.nav { background: var(--dark); height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 200; }
+.logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; flex-shrink: 0; cursor: pointer; }
+.logo span { color: var(--brand); }
+.nav-pill { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 6px; display: flex; gap: 2px; }
+.nav-pill-btn { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 16px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.nav-pill-btn.active, .nav-pill-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-pill-btn.active { background: var(--brand); color: #fff; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.nav-streak { display: flex; align-items: center; gap: 5px; background: rgba(255,77,0,0.15); border: 1px solid rgba(255,77,0,0.25); border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: #FF7A40; }
+.nav-score { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+
+/* PAGE HEADER */
+.page-header { background: var(--dark); padding: 24px 24px 0; }
+.page-header-inner { max-width: 1200px; margin: 0 auto; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 20px; }
+.page-tabs { display: flex; gap: 0; }
+.page-tab { background: none; border: none; color: rgba(255,255,255,0.45); font-size: 14px; font-weight: 500; padding: 12px 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.page-tab:hover { color: rgba(255,255,255,0.8); }
+.page-tab.active { color: #fff; border-bottom-color: var(--brand); }
+
+/* STATS BAR */
+.stats-bar { background: var(--card); border-bottom: 1px solid var(--border); }
+.stats-bar-inner { max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; gap: 32px; align-items: center; flex-wrap: wrap; }
+.stat-item { display: flex; align-items: center; gap: 8px; }
+.stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.stat-text { }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; line-height: 1; }
+.stat-lbl { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+/* MAIN LAYOUT */
+.main-layout { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 260px 1fr; gap: 20px; }
+@media (max-width: 800px) { .main-layout { grid-template-columns: 1fr; } .filter-panel { display: none; } }
+
+/* FILTER PANEL */
+.filter-panel { display: flex; flex-direction: column; gap: 12px; }
+.filter-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.filter-title { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.filter-group { margin-bottom: 14px; }
+.filter-group:last-child { margin-bottom: 0; }
+.filter-group-label { font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 7px; }
+.filter-options { display: flex; flex-direction: column; gap: 3px; }
+.filter-opt { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+.filter-opt:hover { background: var(--bg); }
+.filter-opt.active { background: var(--brand-light); }
+.filter-opt-left { display: flex; align-items: center; gap: 8px; }
+.filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.filter-opt-label { font-size: 13px; color: var(--text-2); }
+.filter-opt.active .filter-opt-label { color: var(--brand-dark); font-weight: 500; }
+.filter-count { font-size: 11px; color: var(--text-3); background: var(--bg); padding: 1px 7px; border-radius: 10px; }
+.filter-opt.active .filter-count { background: var(--brand-light); color: var(--brand); }
+.diff-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+.diff-btn { border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 7px 4px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s; color: var(--text-2); }
+.diff-btn:hover { border-color: var(--border-2); }
+.diff-btn.active-easy { background: var(--green-bg); border-color: #86EFAC; color: var(--green); font-weight: 600; }
+.diff-btn.active-medium { background: var(--yellow-bg); border-color: #FCD34D; color: var(--yellow); font-weight: 600; }
+.diff-btn.active-hard { background: var(--red-bg); border-color: #FCA5A5; color: var(--red); font-weight: 600; }
+.reset-btn { width: 100%; background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-top: 4px; }
+.reset-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+
+/* QUESTION AREA */
+.q-area { min-width: 0; }
+.q-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.q-search { flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text); outline: none; font-family: 'DM Sans', sans-serif; }
+.q-search:focus { border-color: var(--brand); }
+.q-count { font-size: 13px; color: var(--text-2); white-space: nowrap; }
+.sort-select { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 9px 14px; font-size: 13px; color: var(--text); outline: none; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.btn-practice { background: var(--brand); color: #fff; border: none; border-radius: 9px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; transition: background 0.15s; }
+.btn-practice:hover { background: var(--brand-dark); }
+
+/* QUESTION CARD */
+.q-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; transition: all 0.2s; }
+.q-card:hover { border-color: var(--border-2); box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+.q-card.attempted-correct { border-left: 3px solid var(--green); }
+.q-card.attempted-wrong { border-left: 3px solid var(--red); }
+.q-card.bookmarked { border-left: 3px solid var(--yellow); }
+.q-card-header { padding: 14px 18px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.q-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.q-tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; }
+.tag-cat { background: #FFF3EE; color: #CC3D00; }
+.tag-xat { background: #EFF6FF; color: #1D4ED8; }
+.tag-snap { background: #FDF4FF; color: #7E22CE; }
+.tag-cmat { background: #F0FDF4; color: #166534; }
+.tag-mat { background: #FFF7ED; color: #9A3412; }
+.tag-quant { background: #F0FDF4; color: #166534; }
+.tag-verbal { background: #F5F3FF; color: #5B21B6; }
+.tag-lrdi { background: #FFF7ED; color: #9A3412; }
+.tag-dm { background: #FEF2F2; color: #991B1B; }
+.tag-gk { background: #FFFBEB; color: #92400E; }
+.diff-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 5px; }
+.easy { background: var(--green-bg); color: var(--green); }
+.medium { background: var(--yellow-bg); color: var(--yellow); }
+.hard { background: var(--red-bg); color: var(--red); }
+.q-actions { display: flex; gap: 4px; }
+.q-action-btn { background: none; border: none; color: var(--text-3); font-size: 16px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.15s; line-height: 1; }
+.q-action-btn:hover { background: var(--bg); color: var(--text-2); }
+.q-action-btn.bookmarked { color: var(--yellow); }
+.q-action-btn.solved { color: var(--green); }
+.q-id { font-size: 11px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+.q-body { padding: 12px 18px 14px; }
+.q-text { font-size: 15px; line-height: 1.75; color: var(--text); margin-bottom: 14px; }
+.q-text strong { font-weight: 600; }
+.q-text em { font-style: italic; color: var(--text-2); }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
+.option-btn { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 14px; text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); transition: all 0.2s; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+.option-btn:hover:not(:disabled) { border-color: var(--brand); background: var(--brand-light); }
+.option-btn.correct { background: var(--green-bg); border-color: #6EE7B7; color: #065F46; font-weight: 500; }
+.option-btn.wrong { background: var(--red-bg); border-color: #FCA5A5; color: #7F1D1D; }
+.option-btn.revealed { background: #F0FDF4; border-color: #6EE7B7; color: #065F46; opacity: 0.7; }
+.option-letter { font-size: 12px; font-weight: 700; width: 20px; height: 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--border); color: var(--text-2); margin-top: 1px; }
+.option-btn.correct .option-letter { background: #6EE7B7; color: #065F46; }
+.option-btn.wrong .option-letter { background: #FCA5A5; color: #7F1D1D; }
+.option-btn.revealed .option-letter { background: #6EE7B7; color: #065F46; }
+.q-footer { padding: 10px 18px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--border); margin-top: 4px; }
+.q-foot-stat { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+.btn-solution { background: none; border: 1px solid var(--border); color: var(--text-2); font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.btn-solution:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+.btn-discuss { background: none; border: 1px solid var(--border); color: var(--text-2); font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.btn-discuss:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+.accuracy-bar { flex: 1; max-width: 120px; }
+.acc-label { font-size: 10px; color: var(--text-3); margin-bottom: 3px; }
+.acc-track { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.acc-fill { height: 100%; border-radius: 2px; }
+
+/* SOLUTION BOX */
+.solution-box { background: var(--bg); border-top: 1px solid var(--border); padding: 16px 18px; }
+.sol-title { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.sol-text { font-size: 14px; line-height: 1.8; color: var(--text); }
+.sol-text strong { font-weight: 600; color: var(--text); }
+.sol-text .highlight { background: #FEFCE8; border: 1px solid #FEF08A; border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+/* PRACTICE MODE */
+#practice-mode { display: none; }
+.practice-overlay { position: fixed; inset: 0; background: var(--dark); z-index: 300; display: flex; flex-direction: column; }
+.practice-nav { height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.p-logo { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #fff; }
+.p-logo span { color: var(--brand); }
+.p-progress-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+.p-progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.p-progress-fill { height: 100%; background: var(--brand); border-radius: 3px; transition: width 0.4s ease; }
+.p-prog-text { font-size: 13px; color: rgba(255,255,255,0.5); white-space: nowrap; }
+.p-timer { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; color: #fff; min-width: 80px; justify-content: center; }
+.p-timer.warning { color: #FBBF24; border-color: rgba(251,191,36,0.3); }
+.p-timer.danger { color: #F87171; border-color: rgba(248,113,113,0.3); animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.p-end-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); font-size: 13px; padding: 7px 16px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.practice-body { flex: 1; overflow-y: auto; display: flex; justify-content: center; padding: 32px 20px; }
+.practice-inner { width: 100%; max-width: 720px; }
+.p-q-num { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+.p-q-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.p-q-text { font-size: 18px; line-height: 1.75; color: #fff; margin-bottom: 24px; font-weight: 400; }
+.p-q-text strong { font-weight: 600; color: #fff; }
+.p-options { display: flex; flex-direction: column; gap: 10px; }
+.p-option { background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 18px; font-size: 15px; text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif; color: rgba(255,255,255,0.85); transition: all 0.2s; display: flex; gap: 12px; align-items: flex-start; }
+.p-option:hover:not(:disabled) { background: rgba(255,77,0,0.1); border-color: rgba(255,77,0,0.4); color: #fff; }
+.p-option.p-correct { background: rgba(5,150,105,0.15); border-color: rgba(52,211,153,0.5); color: #6EE7B7; }
+.p-option.p-wrong { background: rgba(220,38,38,0.12); border-color: rgba(252,165,165,0.4); color: #FCA5A5; }
+.p-option.p-reveal { background: rgba(5,150,105,0.08); border-color: rgba(52,211,153,0.3); color: rgba(110,231,183,0.7); }
+.p-opt-letter { width: 26px; height: 26px; border-radius: 7px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; color: rgba(255,255,255,0.5); }
+.p-option.p-correct .p-opt-letter { background: rgba(52,211,153,0.2); color: #6EE7B7; }
+.p-option.p-wrong .p-opt-letter { background: rgba(252,165,165,0.2); color: #FCA5A5; }
+.p-feedback { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 18px; margin-top: 16px; font-size: 14px; line-height: 1.75; color: rgba(255,255,255,0.7); }
+.p-feedback strong { color: #fff; }
+.p-feedback .p-sol-label { font-size: 11px; font-weight: 700; color: var(--brand); margin-bottom: 8px; letter-spacing: 0.8px; text-transform: uppercase; }
+.practice-footer { height: 72px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+.p-score-display { display: flex; gap: 20px; }
+.p-score-item { text-align: center; }
+.p-score-num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.p-score-lbl { font-size: 11px; color: rgba(255,255,255,0.4); }
+.p-nav-btns { display: flex; gap: 8px; }
+.p-nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; padding: 10px 24px; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.p-nav-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.p-nav-btn.p-next-btn { background: var(--brand); border-color: var(--brand); color: #fff; }
+.p-nav-btn.p-next-btn:hover { background: var(--brand-dark); }
+
+/* RESULTS SCREEN */
+.results-screen { position: fixed; inset: 0; background: var(--dark); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.results-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; max-width: 560px; width: 100%; padding: 40px 36px; text-align: center; }
+.results-icon { font-size: 48px; margin-bottom: 16px; }
+.results-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.results-subtitle { font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
+.results-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+.results-stat { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px 12px; }
+.results-stat-num { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+.results-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.4); }
+.results-btns { display: flex; gap: 10px; justify-content: center; }
+.results-btn { border-radius: 10px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; border: none; }
+.results-btn-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.15) !important; border: none; }
+.results-btn-primary { background: var(--brand); color: #fff; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--dark); color: #fff; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 999; transform: translateY(60px); opacity: 0; transition: all 0.3s; border-left: 3px solid var(--green); max-width: 300px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 14px; }
+.empty-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.empty-sub { font-size: 14px; color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="window.location.href='1_mba_club_landing.html'" style="cursor:pointer">MBA<span>Club</span></div>
+  <div class="nav-pill">
+    <button class="nav-pill-btn" onclick="window.location.href='2_mba_club_forum.html'">Forum</button>
+    <button class="nav-pill-btn active">Questions</button>
+    <button class="nav-pill-btn" onclick="window.location.href='4_mba_club_ai_tutor.html'">AI Tutor</button>
+    <button class="nav-pill-btn" onclick="window.location.href='5_mba_club_mocktest.html'">Mock Tests</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-streak">🔥 7-day streak</div>
+    <div class="nav-score">⚡ 1,240 pts</div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-title">Question Bank</div>
+    <div class="page-sub">1,20,000+ questions across CAT, XAT, SNAP, CMAT, MAT — with detailed solutions</div>
+    <div class="page-tabs">
+      <button class="page-tab active" onclick="switchTab('browse',this)">Browse Questions</button>
+      <button class="page-tab" onclick="switchTab('bookmarks',this)">Bookmarks</button>
+      <button class="page-tab" onclick="switchTab('history',this)">My Attempts</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item">
+      <div class="stat-icon" style="background:#FFF3EE">🎯</div>
+      <div class="stat-text"><div class="stat-num" id="stat-solved">342</div><div class="stat-lbl">Solved</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon" style="background:var(--green-bg)">✅</div>
+      <div class="stat-text"><div class="stat-num" id="stat-accuracy">71%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon" style="background:var(--yellow-bg)">🔖</div>
+      <div class="stat-text"><div class="stat-num" id="stat-bookmarks">18</div><div class="stat-lbl">Bookmarked</div></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon" style="background:var(--blue-bg)">⏱️</div>
+      <div class="stat-text"><div class="stat-num">1m 48s</div><div class="stat-lbl">Avg time/Q</div></div>
+    </div>
+    <div class="stat-item" style="margin-left:auto">
+      <button class="btn-practice" onclick="startPractice()">▶ Start Timed Practice</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+
+  <!-- FILTER PANEL -->
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-card">
+      <div class="filter-title">Filters</div>
+
+      <div class="filter-group">
+        <div class="filter-group-label">Exam</div>
+        <div class="filter-options" id="exam-filters">
+          <div class="filter-opt active" onclick="toggleFilter('exam','all',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#FF4D00"></div><span class="filter-opt-label">All Exams</span></div><span class="filter-count">847</span></div>
+          <div class="filter-opt" onclick="toggleFilter('exam','CAT',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#FF4D00"></div><span class="filter-opt-label">CAT</span></div><span class="filter-count">312</span></div>
+          <div class="filter-opt" onclick="toggleFilter('exam','XAT',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#2563EB"></div><span class="filter-opt-label">XAT</span></div><span class="filter-count">148</span></div>
+          <div class="filter-opt" onclick="toggleFilter('exam','SNAP',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#7C3AED"></div><span class="filter-opt-label">SNAP</span></div><span class="filter-count">97</span></div>
+          <div class="filter-opt" onclick="toggleFilter('exam','CMAT',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#059669"></div><span class="filter-opt-label">CMAT</span></div><span class="filter-count">84</span></div>
+          <div class="filter-opt" onclick="toggleFilter('exam','MAT',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#D97706"></div><span class="filter-opt-label">MAT</span></div><span class="filter-count">61</span></div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-label">Subject</div>
+        <div class="filter-options" id="subject-filters">
+          <div class="filter-opt active" onclick="toggleFilter('subject','all',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#94a3b8"></div><span class="filter-opt-label">All Subjects</span></div><span class="filter-count">847</span></div>
+          <div class="filter-opt" onclick="toggleFilter('subject','Quant',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#059669"></div><span class="filter-opt-label">Quantitative</span></div><span class="filter-count">280</span></div>
+          <div class="filter-opt" onclick="toggleFilter('subject','Verbal',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#7C3AED"></div><span class="filter-opt-label">Verbal & RC</span></div><span class="filter-count">210</span></div>
+          <div class="filter-opt" onclick="toggleFilter('subject','LRDI',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#D97706"></div><span class="filter-opt-label">LRDI</span></div><span class="filter-count">180</span></div>
+          <div class="filter-opt" onclick="toggleFilter('subject','DM',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#DC2626"></div><span class="filter-opt-label">Decision Making</span></div><span class="filter-count">95</span></div>
+          <div class="filter-opt" onclick="toggleFilter('subject','GK',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#92400E"></div><span class="filter-opt-label">General Knowledge</span></div><span class="filter-count">82</span></div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-label">Difficulty</div>
+        <div class="diff-btns">
+          <div class="diff-btn" id="diff-easy" onclick="toggleDiff('Easy')">Easy</div>
+          <div class="diff-btn" id="diff-medium" onclick="toggleDiff('Medium')">Medium</div>
+          <div class="diff-btn" id="diff-hard" onclick="toggleDiff('Hard')">Hard</div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-label">Status</div>
+        <div class="filter-options" id="status-filters">
+          <div class="filter-opt active" onclick="toggleFilter('status','all',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#94a3b8"></div><span class="filter-opt-label">All Questions</span></div></div>
+          <div class="filter-opt" onclick="toggleFilter('status','unsolved',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#94a3b8"></div><span class="filter-opt-label">Unsolved</span></div></div>
+          <div class="filter-opt" onclick="toggleFilter('status','correct',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#059669"></div><span class="filter-opt-label">Correct</span></div></div>
+          <div class="filter-opt" onclick="toggleFilter('status','wrong',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#DC2626"></div><span class="filter-opt-label">Wrong — Revise</span></div></div>
+          <div class="filter-opt" onclick="toggleFilter('status','bookmarked',this)"><div class="filter-opt-left"><div class="filter-dot" style="background:#D97706"></div><span class="filter-opt-label">Bookmarked</span></div></div>
+        </div>
+      </div>
+
+      <button class="reset-btn" onclick="resetFilters()">↺ Reset all filters</button>
+    </div>
+  </div>
+
+  <!-- QUESTION LIST -->
+  <div class="q-area">
+    <div class="q-toolbar">
+      <input class="q-search" id="q-search" placeholder="Search questions, topics, keywords..." oninput="handleSearch(this.value)">
+      <select class="sort-select" onchange="handleSort(this.value)">
+        <option value="default">Sort: Default</option>
+        <option value="difficulty-asc">Difficulty: Easy first</option>
+        <option value="difficulty-desc">Difficulty: Hard first</option>
+        <option value="accuracy-asc">Accuracy: Low first</option>
+        <option value="popular">Most Attempted</option>
+      </select>
+      <div class="q-count" id="q-count">Showing 10 questions</div>
+    </div>
+    <div id="questions-list"></div>
+  </div>
+</div>
+
+<!-- PRACTICE MODE OVERLAY -->
+<div id="practice-mode">
+  <div class="practice-overlay">
+    <div class="practice-nav">
+      <div class="p-logo">MBA<span>Club</span> Practice</div>
+      <div class="p-progress-wrap">
+        <div class="p-progress-track"><div class="p-progress-fill" id="p-progress" style="width:0%"></div></div>
+        <div class="p-prog-text" id="p-prog-text">0 / 10</div>
+      </div>
+      <div class="p-timer" id="p-timer">02:00</div>
+      <button class="p-end-btn" onclick="endPractice()">End Session</button>
+    </div>
+    <div class="practice-body">
+      <div class="practice-inner">
+        <div class="p-q-num" id="p-q-num">Question 1 of 10</div>
+        <div class="p-q-tags" id="p-q-tags"></div>
+        <div class="p-q-text" id="p-q-text"></div>
+        <div class="p-options" id="p-options"></div>
+        <div class="p-feedback" id="p-feedback" style="display:none"></div>
+      </div>
+    </div>
+    <div class="practice-footer">
+      <div class="p-score-display">
+        <div class="p-score-item"><div class="p-score-num" id="p-correct" style="color:#6EE7B7">0</div><div class="p-score-lbl">Correct</div></div>
+        <div class="p-score-item"><div class="p-score-num" id="p-wrong" style="color:#FCA5A5">0</div><div class="p-score-lbl">Wrong</div></div>
+        <div class="p-score-item"><div class="p-score-num" id="p-skipped" style="color:rgba(255,255,255,0.4)">0</div><div class="p-score-lbl">Skipped</div></div>
+      </div>
+      <div class="p-nav-btns">
+        <button class="p-nav-btn" id="p-skip-btn" onclick="skipQuestion()">Skip →</button>
+        <button class="p-nav-btn p-next-btn" id="p-next-btn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div class="results-screen" id="results-screen" style="display:none">
+  <div class="results-card">
+    <div class="results-icon" id="r-icon">🎯</div>
+    <div class="results-title" id="r-title">Session Complete!</div>
+    <div class="results-subtitle" id="r-sub">Here's how you did</div>
+    <div class="results-grid">
+      <div class="results-stat"><div class="results-stat-num" id="r-correct" style="color:#6EE7B7">0</div><div class="results-stat-lbl">Correct</div></div>
+      <div class="results-stat"><div class="results-stat-num" id="r-wrong" style="color:#FCA5A5">0</div><div class="results-stat-lbl">Wrong</div></div>
+      <div class="results-stat"><div class="results-stat-num" id="r-accuracy" style="color:var(--brand)">0%</div><div class="results-stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="results-btns">
+      <button class="results-btn results-btn-secondary" onclick="closeResults()">← Back to Bank</button>
+      <button class="results-btn results-btn-primary" onclick="startPractice()">Practice Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const QUESTIONS = [
+  {id:'QA-4821',exam:'CAT',subject:'Quant',topic:'Algebra',difficulty:'Medium',text:'If <strong>x + 1/x = 3</strong>, find the value of <strong>x³ + 1/x³</strong>.',options:['18','27','36','9'],correct:0,solution:'<strong>Step 1:</strong> We know x + 1/x = 3.<br><strong>Step 2:</strong> Use the identity: x³ + 1/x³ = (x + 1/x)³ − 3(x + 1/x)<br><strong>Step 3:</strong> = 3³ − 3(3) = 27 − 9 = <span class="highlight">18</span>',attempts:12342,accuracy:58,year:'CAT 2023',state:null,bookmarked:false},
+  {id:'VA-7741',exam:'CAT',subject:'Verbal',topic:'Fill in the Blanks',difficulty:'Easy',text:'Choose the option that fills the blank most appropriately:<br><em>"The new policy was meant to _____ the concerns of minority groups, but it only served to deepen the divide."</em>',options:['address','alleviate','aggravate','abolish'],correct:1,solution:'<strong>Answer: alleviate</strong><br>The sentence uses a <em>contrast structure</em> ("meant to ___ but only served to..."). "Alleviate" (to relieve/reduce) fits — the intent was positive, the outcome was negative. "Address" is weaker in contrast. "Aggravate" and "abolish" contradict the positive intent.',attempts:8760,accuracy:72,year:'CAT 2022',state:null,bookmarked:false},
+  {id:'DM-1103',exam:'XAT',subject:'DM',topic:'Ethical Dilemma',difficulty:'Hard',text:'Ravi, a branch manager, discovers his top salesperson has been inflating expense claims by ₹200/month. Reporting this will likely result in termination of this key performer. What should Ravi do?',options:['Report immediately to HR','Warn the employee privately and closely monitor','Ignore it — the amount is too small to matter','Ask the employee to return the money quietly'],correct:1,solution:'<strong>Best Answer: B — Warn privately and monitor</strong><br>A private warning maintains the relationship, addresses the ethical breach, and gives the employee a chance to self-correct. <br>• Option A is disproportionate for the first offence<br>• Option C condones dishonesty and sets a bad precedent<br>• Option D creates an informal deal that bypasses procedure',attempts:6234,accuracy:44,year:'XAT 2025',state:null,bookmarked:false},
+  {id:'LR-2291',exam:'CAT',subject:'LRDI',topic:'Seating Arrangement',difficulty:'Hard',text:'Six people — A, B, C, D, E, F — sit in a row. A sits to the left of B. C sits to the right of D. E sits between A and C. F sits at one end. D is not adjacent to B. Who sits at the other end?',options:['A','B','C','D'],correct:1,solution:'<strong>Step-by-step arrangement:</strong><br>Given: F at one end, A left of B, E between A and C, C right of D, D not adjacent to B.<br>Arrangement: <span class="highlight">F — D — A — E — C — B</span><br>B sits at the other end.',attempts:4891,accuracy:31,year:'CAT 2024',state:null,bookmarked:false},
+  {id:'QA-3312',exam:'CAT',subject:'Quant',topic:'Time & Work',difficulty:'Medium',text:'A can complete a work in 12 days, B in 18 days. They work together for 4 days, then A leaves. In how many more days will B finish the remaining work?',options:['8 days','9 days','10 days','11 days'],correct:2,solution:'<strong>Work done in 4 days together:</strong><br>A\'s rate = 1/12, B\'s rate = 1/18<br>Combined = 1/12 + 1/18 = 5/36 per day<br>In 4 days: 4 × 5/36 = 20/36 = 5/9 done<br><strong>Remaining:</strong> 1 − 5/9 = 4/9<br><strong>B alone:</strong> (4/9) ÷ (1/18) = <span class="highlight">8 days</span>... wait — recalculating: 4/9 × 18 = 8. Answer is A (8 days).',attempts:9102,accuracy:61,year:'CAT 2023',state:null,bookmarked:false,correctOverride:0},
+  {id:'GK-0441',exam:'CMAT',subject:'GK',topic:'Current Affairs',difficulty:'Easy',text:'Which organization released the "Global Hunger Index 2024"?<br><em>(Based on CMAT 2024 pattern)</em>',options:['FAO & WHO','Concern Worldwide & Welthungerhilfe','World Food Programme','UNICEF & World Bank'],correct:1,solution:'<strong>Answer: Concern Worldwide & Welthungerhilfe</strong><br>The Global Hunger Index (GHI) is published annually by two organizations: <strong>Concern Worldwide</strong> (Ireland) and <strong>Welthungerhilfe</strong> (Germany). It uses 4 indicators: undernourishment, child wasting, child stunting, and child mortality.',attempts:7430,accuracy:38,year:'CMAT 2024',state:null,bookmarked:false},
+  {id:'VA-8821',exam:'XAT',subject:'Verbal',topic:'Reading Comprehension',difficulty:'Hard',text:'<em>(RC passage excerpt)</em> "Technology, once considered a great equalizer, has paradoxically deepened social stratification. The digital divide is no longer merely about access — it is about the quality of access, the sophistication of use, and the ability to leverage digital tools for economic advancement."<br><br>The author\'s primary argument is that:',options:['Technology has failed to connect rural populations','Digital inequality is now more nuanced and multi-dimensional than before','Access to the internet is the main barrier to equality','Technology companies must be regulated more strictly'],correct:1,solution:'<strong>Answer: B</strong><br>The author explicitly states the divide is "no longer merely about access" and lists three dimensions: quality, sophistication, and leveraging ability. This makes the argument about <em>multi-dimensional digital inequality</em>, not simple access. Options A, C contradict the passage; D is not mentioned.',attempts:5621,accuracy:55,year:'XAT 2024',state:null,bookmarked:false},
+  {id:'QA-5530',exam:'SNAP',subject:'Quant',topic:'Percentages',difficulty:'Easy',text:'A shopkeeper marks his goods 40% above cost price and offers a 20% discount. What is his profit percentage?',options:['10%','12%','14%','20%'],correct:1,solution:'<strong>Let cost price = 100</strong><br>Marked price = 140 (40% above CP)<br>Selling price = 140 × 0.8 = 112 (20% discount)<br>Profit = 112 − 100 = 12<br>Profit % = <span class="highlight">12%</span>',attempts:14200,accuracy:79,year:'SNAP 2024',state:null,bookmarked:false},
+  {id:'DM-2204',exam:'XAT',subject:'DM',topic:'Data Sufficiency',difficulty:'Medium',text:'Is the integer N divisible by 6?<br><strong>Statement I:</strong> N is divisible by 3<br><strong>Statement II:</strong> N is divisible by 2',options:['Statement I alone is sufficient','Statement II alone is sufficient','Both statements together are sufficient','Neither statement alone nor together is sufficient'],correct:2,solution:'<strong>Answer: C — Both together are sufficient</strong><br>For N to be divisible by 6, it must be divisible by both 2 and 3 (since 6 = 2 × 3, and 2 and 3 are co-prime).<br>• Statement I alone: N divisible by 3 but not necessarily 2 (e.g., N=9) — insufficient<br>• Statement II alone: N divisible by 2 but not necessarily 3 (e.g., N=4) — insufficient<br>• Together: divisible by both 2 and 3 → divisible by 6 ✓',attempts:6890,accuracy:49,year:'XAT 2024',state:null,bookmarked:false},
+  {id:'QA-6612',exam:'MAT',subject:'Quant',topic:'Number System',difficulty:'Medium',text:'What is the largest 4-digit number that is divisible by 88?',options:['9944','9856','9768','9680'],correct:0,solution:'<strong>Method:</strong> 9999 ÷ 88 = 113.6...<br>So the largest multiple = 113 × 88 = <span class="highlight">9944</span><br>Verify: 9944 / 88 = 113 ✓',attempts:5340,accuracy:63,year:'MAT 2024',state:null,bookmarked:false}
+];
+
+let filters = { exam: 'all', subject: 'all', difficulty: [], status: 'all' };
+let searchQuery = '';
+let sortMode = 'default';
+let currentTab = 'browse';
+let practiceQueue = [], practiceIdx = 0, pCorrect = 0, pWrong = 0, pSkipped = 0;
+let timerInterval = null, timeLeft = 120;
+
+function getTagClass(t) {
+  const map = {CAT:'cat',XAT:'xat',SNAP:'snap',CMAT:'cmat',MAT:'mat',Quant:'quant',Verbal:'verbal',LRDI:'lrdi',DM:'dm',GK:'gk'};
+  return 'q-tag tag-' + (map[t] || 'quant');
+}
+
+function getFiltered() {
+  let list = [...QUESTIONS];
+  if (filters.exam !== 'all') list = list.filter(q => q.exam === filters.exam);
+  if (filters.subject !== 'all') list = list.filter(q => q.subject === filters.subject);
+  if (filters.difficulty.length) list = list.filter(q => filters.difficulty.includes(q.difficulty));
+  if (filters.status === 'unsolved') list = list.filter(q => !q.state);
+  else if (filters.status === 'correct') list = list.filter(q => q.state === 'correct');
+  else if (filters.status === 'wrong') list = list.filter(q => q.state === 'wrong');
+  else if (filters.status === 'bookmarked') list = list.filter(q => q.bookmarked);
+  if (searchQuery) list = list.filter(q => q.text.toLowerCase().includes(searchQuery) || q.topic.toLowerCase().includes(searchQuery) || q.subject.toLowerCase().includes(searchQuery));
+  if (sortMode === 'difficulty-asc') { const o = {Easy:1,Medium:2,Hard:3}; list.sort((a,b) => o[a.difficulty]-o[b.difficulty]); }
+  else if (sortMode === 'difficulty-desc') { const o = {Easy:1,Medium:2,Hard:3}; list.sort((a,b) => o[b.difficulty]-o[a.difficulty]); }
+  else if (sortMode === 'accuracy-asc') list.sort((a,b) => a.accuracy - b.accuracy);
+  else if (sortMode === 'popular') list.sort((a,b) => b.attempts - a.attempts);
+  return list;
+}
+
+function renderQuestions() {
+  const list = getFiltered();
+  const el = document.getElementById('questions-list');
+  document.getElementById('q-count').textContent = 'Showing ' + list.length + ' question' + (list.length!==1?'s':'');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No questions found</div><div class="empty-sub">Try adjusting your filters or search query</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(q => {
+    const stateClass = q.state === 'correct' ? 'attempted-correct' : q.state === 'wrong' ? 'attempted-wrong' : q.bookmarked ? 'bookmarked' : '';
+    const correctIdx = q.correctOverride !== undefined ? q.correctOverride : q.correct;
+    return `
+    <div class="q-card ${stateClass}" id="qcard-${q.id}">
+      <div class="q-card-header">
+        <div class="q-meta">
+          <span class="${getTagClass(q.exam)}">${q.exam}</span>
+          <span class="${getTagClass(q.subject)}">${q.subject}</span>
+          <span class="q-tag" style="background:var(--bg);color:var(--text-2);border:1px solid var(--border)">${q.topic}</span>
+          <span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>
+          <span class="q-id">${q.id}</span>
+          ${q.year ? `<span class="q-tag" style="background:var(--bg);color:var(--text-3);font-size:10px">${q.year}</span>` : ''}
+        </div>
+        <div class="q-actions">
+          <button class="q-action-btn ${q.bookmarked?'bookmarked':''}" title="${q.bookmarked?'Remove bookmark':'Bookmark'}" onclick="toggleBookmark('${q.id}')">${q.bookmarked?'🔖':'🔖'}</button>
+          <button class="q-action-btn ${q.state==='correct'?'solved':''}" title="Mark as solved" onclick="markSolved('${q.id}')">${q.state==='correct'?'✅':'☑️'}</button>
+        </div>
+      </div>
+      <div class="q-body">
+        <div class="q-text">${q.text}</div>
+        <div class="options-grid" id="opts-${q.id}">
+          ${q.options.map((opt,i) => {
+            let cls = '';
+            if (q.state) { cls = i === correctIdx ? 'correct' : (q.chosenIdx === i ? 'wrong' : ''); }
+            return `<button class="option-btn ${cls}" ${q.state?'disabled':''} onclick="selectAnswer('${q.id}',${i})"><span class="option-letter">${String.fromCharCode(65+i)}</span>${opt}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="q-footer">
+        <span class="q-foot-stat">👥 ${q.attempts.toLocaleString()} attempts</span>
+        <div class="accuracy-bar">
+          <div class="acc-label">Accuracy: ${q.accuracy}%</div>
+          <div class="acc-track"><div class="acc-fill" style="width:${q.accuracy}%;background:${q.accuracy>65?'var(--green)':q.accuracy>40?'var(--yellow)':'var(--red)'}"></div></div>
+        </div>
+        <button class="btn-solution" onclick="toggleSolution('${q.id}')">💡 Solution</button>
+        <button class="btn-discuss" onclick="showToast('Opening forum discussion...')">💬 Discuss</button>
+      </div>
+      <div class="solution-box" id="sol-${q.id}" style="display:none">
+        <div class="sol-title">📖 Step-by-Step Solution</div>
+        <div class="sol-text">${q.solution}</div>
+      </div>
+    </div>`; }).join('');
+}
+
+function selectAnswer(qid, idx) {
+  const q = QUESTIONS.find(x => x.id === qid);
+  if (q.state) return;
+  const correctIdx = q.correctOverride !== undefined ? q.correctOverride : q.correct;
+  q.chosenIdx = idx;
+  q.state = idx === correctIdx ? 'correct' : 'wrong';
+  const opts = document.querySelectorAll(`#opts-${qid} .option-btn`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correctIdx) btn.classList.add(q.state === 'correct' || i !== idx ? 'correct' : 'revealed');
+    if (i === idx && i !== correctIdx) btn.classList.add('wrong');
+    if (i === correctIdx && q.state === 'wrong') btn.classList.add('revealed');
+  });
+  const card = document.getElementById('qcard-'+qid);
+  card.className = card.className.replace(/attempted-\w+|bookmarked/g,'').trim() + ' ' + (q.state === 'correct' ? 'attempted-correct' : 'attempted-wrong');
+  updateStats();
+  if (q.state === 'correct') showToast('✅ Correct! Well done!');
+  else showToast('❌ Incorrect. Check the solution!');
+}
+
+function toggleSolution(qid) {
+  const el = document.getElementById('sol-'+qid);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleBookmark(qid) {
+  const q = QUESTIONS.find(x => x.id === qid);
+  q.bookmarked = !q.bookmarked;
+  updateStats();
+  renderQuestions();
+  showToast(q.bookmarked ? '🔖 Bookmarked!' : 'Bookmark removed');
+}
+
+function markSolved(qid) {
+  const q = QUESTIONS.find(x => x.id === qid);
+  if (q.state !== 'correct') { q.state = 'correct'; updateStats(); renderQuestions(); showToast('✅ Marked as solved!'); }
+}
+
+function updateStats() {
+  const solved = QUESTIONS.filter(q => q.state).length;
+  const correct = QUESTIONS.filter(q => q.state === 'correct').length;
+  const bookmarked = QUESTIONS.filter(q => q.bookmarked).length;
+  const acc = solved > 0 ? Math.round((correct/solved)*100) : 71;
+  document.getElementById('stat-solved').textContent = 342 + solved;
+  document.getElementById('stat-accuracy').textContent = acc + '%';
+  document.getElementById('stat-bookmarks').textContent = 18 + bookmarked;
+}
+
+function toggleFilter(type, value, el) {
+  const groupId = type + '-filters';
+  document.querySelectorAll('#' + groupId + ' .filter-opt').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  filters[type] = value;
+  renderQuestions();
+}
+
+function toggleDiff(d) {
+  const btn = document.getElementById('diff-' + d.toLowerCase());
+  const idx = filters.difficulty.indexOf(d);
+  if (idx === -1) { filters.difficulty.push(d); btn.className = 'diff-btn active-' + d.toLowerCase(); }
+  else { filters.difficulty.splice(idx, 1); btn.className = 'diff-btn'; }
+  renderQuestions();
+}
+
+function resetFilters() {
+  filters = { exam: 'all', subject: 'all', difficulty: [], status: 'all' };
+  document.querySelectorAll('.filter-opt').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('#exam-filters .filter-opt:first-child, #subject-filters .filter-opt:first-child, #status-filters .filter-opt:first-child').forEach(e => e.classList.add('active'));
+  ['easy','medium','hard'].forEach(d => { document.getElementById('diff-'+d).className = 'diff-btn'; });
+  document.getElementById('q-search').value = '';
+  searchQuery = '';
+  renderQuestions();
+  showToast('Filters reset');
+}
+
+function handleSearch(v) { searchQuery = v.toLowerCase(); renderQuestions(); }
+function handleSort(v) { sortMode = v; renderQuestions(); }
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.page-tab').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'bookmarks') { filters.status = 'bookmarked'; document.querySelectorAll('#status-filters .filter-opt').forEach(e=>e.classList.remove('active')); document.querySelector('#status-filters .filter-opt:last-child').classList.add('active'); }
+  else if (tab === 'history') { filters.status = 'correct'; document.querySelectorAll('#status-filters .filter-opt').forEach(e=>e.classList.remove('active')); document.querySelectorAll('#status-filters .filter-opt')[2].classList.add('active'); }
+  else { filters.status = 'all'; document.querySelectorAll('#status-filters .filter-opt').forEach(e=>e.classList.remove('active')); document.querySelector('#status-filters .filter-opt:first-child').classList.add('active'); }
+  renderQuestions();
+}
+
+// PRACTICE MODE
+function startPractice() {
+  practiceQueue = [...QUESTIONS].sort(() => Math.random()-0.5);
+  practiceIdx = 0; pCorrect = 0; pWrong = 0; pSkipped = 0;
+  document.getElementById('practice-mode').style.display = 'block';
+  document.getElementById('p-correct').textContent = 0;
+  document.getElementById('p-wrong').textContent = 0;
+  document.getElementById('p-skipped').textContent = 0;
+  loadPracticeQ();
+  startTimer();
+}
+
+function loadPracticeQ() {
+  const q = practiceQueue[practiceIdx];
+  const total = practiceQueue.length;
+  document.getElementById('p-q-num').textContent = 'Question ' + (practiceIdx+1) + ' of ' + total;
+  document.getElementById('p-prog-text').textContent = practiceIdx + ' / ' + total;
+  document.getElementById('p-progress').style.width = (practiceIdx/total*100) + '%';
+  document.getElementById('p-q-tags').innerHTML = `<span class="${getTagClass(q.exam)}">${q.exam}</span><span class="${getTagClass(q.subject)}">${q.subject}</span><span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>`;
+  document.getElementById('p-q-text').innerHTML = q.text;
+  const correctIdx = q.correctOverride !== undefined ? q.correctOverride : q.correct;
+  document.getElementById('p-options').innerHTML = q.options.map((opt,i) =>
+    `<button class="p-option" onclick="selectPracticeAnswer(${i},${correctIdx},'${q.id}')"><span class="p-opt-letter">${String.fromCharCode(65+i)}</span>${opt}</button>`
+  ).join('');
+  document.getElementById('p-feedback').style.display = 'none';
+  document.getElementById('p-skip-btn').style.display = 'inline-flex';
+  document.getElementById('p-next-btn').style.display = 'none';
+  resetTimer();
+}
+
+function selectPracticeAnswer(idx, correctIdx, qid) {
+  document.querySelectorAll('.p-option').forEach((btn,i) => {
+    btn.disabled = true;
+    if (i === correctIdx) btn.classList.add('p-correct');
+    if (i === idx && i !== correctIdx) btn.classList.add('p-wrong');
+  });
+  const isCorrect = idx === correctIdx;
+  if (isCorrect) { pCorrect++; document.getElementById('p-correct').textContent = pCorrect; }
+  else { pWrong++; document.getElementById('p-wrong').textContent = pWrong; }
+  const q = QUESTIONS.find(x => x.id === qid);
+  const fb = document.getElementById('p-feedback');
+  fb.innerHTML = `<div class="p-sol-label">${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</div>${q.solution}`;
+  fb.style.display = 'block';
+  document.getElementById('p-skip-btn').style.display = 'none';
+  document.getElementById('p-next-btn').style.display = 'inline-flex';
+  clearInterval(timerInterval);
+}
+
+function skipQuestion() {
+  pSkipped++; document.getElementById('p-skipped').textContent = pSkipped;
+  clearInterval(timerInterval);
+  if (practiceIdx + 1 >= practiceQueue.length) { showResults(); return; }
+  practiceIdx++;
+  loadPracticeQ();
+  startTimer();
+}
+
+function nextQuestion() {
+  clearInterval(timerInterval);
+  if (practiceIdx + 1 >= practiceQueue.length) { showResults(); return; }
+  practiceIdx++;
+  loadPracticeQ();
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = 120;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); skipQuestion(); }
+  }, 1000);
+}
+
+function resetTimer() { clearInterval(timerInterval); timeLeft = 120; updateTimerDisplay(); }
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+  const s = (timeLeft%60).toString().padStart(2,'0');
+  const el = document.getElementById('p-timer');
+  el.textContent = m + ':' + s;
+  el.className = 'p-timer' + (timeLeft <= 30 ? ' danger' : timeLeft <= 60 ? ' warning' : '');
+}
+
+function endPractice() {
+  clearInterval(timerInterval);
+  document.getElementById('practice-mode').style.display = 'none';
+  if (pCorrect + pWrong > 0) showResults();
+}
+
+function showResults() {
+  clearInterval(timerInterval);
+  document.getElementById('practice-mode').style.display = 'none';
+  const total = pCorrect + pWrong + pSkipped;
+  const acc = total > 0 ? Math.round((pCorrect/total)*100) : 0;
+  document.getElementById('r-correct').textContent = pCorrect;
+  document.getElementById('r-wrong').textContent = pWrong;
+  document.getElementById('r-accuracy').textContent = acc + '%';
+  document.getElementById('r-icon').textContent = acc >= 70 ? '🏆' : acc >= 50 ? '💪' : '📚';
+  document.getElementById('r-title').textContent = acc >= 70 ? 'Excellent Work!' : acc >= 50 ? 'Good Effort!' : 'Keep Practicing!';
+  document.getElementById('r-sub').textContent = `You answered ${pCorrect} of ${total} questions correctly`;
+  document.getElementById('results-screen').style.display = 'flex';
+}
+
+function closeResults() {
+  document.getElementById('results-screen').style.display = 'none';
+  pCorrect = 0; pWrong = 0; pSkipped = 0;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+renderQuestions();
+</script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBA Club — Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --brand:#FF4D00;--brand-dark:#CC3D00;--brand-light:rgba(255,77,0,0.12);
+  --dark:#0A0F1E;--dark-2:#111827;--dark-3:#1F2937;--dark-4:#374151;
+  --border:rgba(255,255,255,0.07);--border-2:rgba(255,255,255,0.12);
+  --text:#fff;--text-2:rgba(255,255,255,0.6);--text-3:rgba(255,255,255,0.3);
+  --gold:#F5A623;--silver:#9CA3AF;--bronze:#CD7C2F;
+  --green:#10B981;--green-dim:rgba(16,185,129,0.15);
+  --blue:#3B82F6;--blue-dim:rgba(59,130,246,0.12);
+  --purple:#8B5CF6;--purple-dim:rgba(139,92,246,0.12);
+  --yellow:#FBBF24;--yellow-dim:rgba(251,191,36,0.12);
+  --red:#EF4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+/* NAV */
+.nav{height:56px;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:1px solid var(--border);background:var(--dark);position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#fff;flex-shrink:0}
+.logo span{color:var(--brand)}
+.nav-pill{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:20px;padding:4px 5px;display:flex;gap:2px}
+.npb{background:none;border:none;color:var(--text-3);font-size:12px;font-weight:500;padding:5px 13px;border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.npb:hover{color:var(--text-2)}
+.npb.active{background:var(--brand);color:#fff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 6px;cursor:pointer;transition:all 0.15s}
+.user-chip:hover{border-color:var(--border-2)}
+.uc-av{width:26px;height:26px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.uc-name{font-size:12px;font-weight:500;color:var(--text-2)}
+.uc-rank{font-size:11px;color:var(--brand);font-weight:700}
+
+/* HERO */
+.hero{background:var(--dark-2);border-bottom:1px solid var(--border);padding:32px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 10% 50%,rgba(255,77,0,0.06) 0%,transparent 55%),radial-gradient(ellipse at 90% 20%,rgba(59,130,246,0.05) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(22px,3.5vw,36px);font-weight:800;margin-bottom:6px}
+.hero-title span{color:var(--brand)}
+.hero-sub{font-size:14px;color:var(--text-3);margin-bottom:24px}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+.hs-item{text-align:center}
+.hs-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.hs-lbl{font-size:11px;color:var(--text-3);margin-top:3px}
+
+/* PODIUM */
+.podium-section{max-width:1200px;margin:0 auto;padding:32px 24px 0}
+.podium-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:32px}
+.podium-spot{display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;transition:transform 0.2s}
+.podium-spot:hover{transform:translateY(-4px)}
+.podium-av{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px;position:relative;flex-shrink:0}
+.podium-av .crown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:18px}
+.podium-name{font-size:13px;font-weight:600;text-align:center;margin-bottom:2px}
+.podium-score{font-size:11px;color:var(--text-3);text-align:center;margin-bottom:8px}
+.podium-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:8px}
+.podium-block{border-radius:12px 12px 0 0;width:110px;display:flex;align-items:center;justify-content:center}
+.podium-rank{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.p1 .podium-block{height:100px;background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3)}
+.p1 .podium-rank{color:var(--gold)}
+.p2 .podium-block{height:72px;background:rgba(156,163,175,0.1);border:1px solid rgba(156,163,175,0.2)}
+.p2 .podium-rank{color:var(--silver)}
+.p3 .podium-block{height:52px;background:rgba(205,124,47,0.1);border:1px solid rgba(205,124,47,0.2)}
+.p3 .podium-rank{color:var(--bronze)}
+
+/* FILTER BAR */
+.filter-bar{max-width:1200px;margin:0 auto;padding:0 24px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-tabs{display:flex;gap:3px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:4px}
+.ftab{background:none;border:none;color:var(--text-3);font-size:13px;font-weight:500;padding:7px 16px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.ftab:hover{color:var(--text-2)}
+.ftab.active{background:var(--brand);color:#fff}
+.filter-sep{width:1px;height:28px;background:var(--border);margin:0 4px}
+.exam-filter{display:flex;gap:3px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:4px}
+.efb{background:none;border:none;color:var(--text-3);font-size:12px;font-weight:500;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.efb:hover{color:var(--text-2)}
+.efb.active{background:rgba(255,255,255,0.08);color:#fff}
+.search-wrap{margin-left:auto}
+.lb-search{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:8px 14px;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;min-width:200px}
+.lb-search::placeholder{color:var(--text-3)}
+.lb-search:focus{border-color:rgba(255,77,0,0.4)}
+
+/* MAIN LAYOUT */
+.lb-layout{max-width:1200px;margin:0 auto;padding:0 24px 40px;display:grid;grid-template-columns:1fr 300px;gap:16px}
+@media(max-width:900px){.lb-layout{grid-template-columns:1fr}.side-panels{display:none}}
+
+/* LEADERBOARD TABLE */
+.lb-table{background:var(--dark-2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.lb-header{display:grid;grid-template-columns:60px 1fr 120px 120px 100px 80px;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px}
+.lb-row{display:grid;grid-template-columns:60px 1fr 120px 120px 100px 80px;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:all 0.15s;position:relative}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:rgba(255,255,255,0.03)}
+.lb-row.me{background:rgba(255,77,0,0.06);border-left:3px solid var(--brand)}
+.lb-row.top3{background:rgba(255,255,255,0.02)}
+.rank-cell{display:flex;align-items:center;justify-content:center}
+.rank-num{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.rank-gold{color:var(--gold)}
+.rank-silver{color:var(--silver)}
+.rank-bronze{color:var(--bronze)}
+.rank-change{font-size:10px;margin-top:2px}
+.rc-up{color:var(--green)}
+.rc-down{color:var(--red)}
+.rc-same{color:var(--text-3)}
+.user-cell{display:flex;align-items:center;gap:10px}
+.lb-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.lb-user-info{}
+.lb-username{font-size:14px;font-weight:600;color:#fff}
+.lb-user-sub{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.lb-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px}
+.lb-college{font-size:11px;color:var(--text-3)}
+.metric-cell{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;text-align:center}
+.accuracy-cell{text-align:center}
+.acc-num{font-size:13px;font-weight:600;margin-bottom:3px}
+.acc-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;width:60px;margin:0 auto}
+.acc-fill{height:100%;border-radius:2px}
+.streak-cell{text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.streak-fire{font-size:14px}
+.streak-days{font-size:12px;font-weight:600}
+.me-tag{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,77,0,0.2);color:var(--brand);border:1px solid rgba(255,77,0,0.3)}
+
+/* SIDE PANELS */
+.side-panels{display:flex;flex-direction:column;gap:14px}
+.side-card{background:var(--dark-2);border:1px solid var(--border);border-radius:14px;padding:16px}
+.sc-title{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* WEEKLY CHALLENGE */
+.challenge-card{background:var(--dark-3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all 0.15s}
+.challenge-card:hover{border-color:var(--border-2)}
+.challenge-card.active-challenge{border-color:rgba(255,77,0,0.35);background:rgba(255,77,0,0.06)}
+.cc-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.cc-icon{font-size:20px;flex-shrink:0}
+.cc-title{font-size:13px;font-weight:600;color:#fff;line-height:1.3}
+.cc-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.cc-progress{margin-bottom:6px}
+.cc-prog-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.cc-prog-fill{height:100%;border-radius:3px;background:var(--brand);transition:width 0.6s ease}
+.cc-prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)}
+.cc-reward{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--gold)}
+
+/* KUDOS ECONOMY */
+.kudos-display{text-align:center;padding:12px 0 16px}
+.kudos-num{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--brand);line-height:1}
+.kudos-label{font-size:12px;color:var(--text-3);margin-top:4px}
+.kudos-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.kb-item{background:var(--dark-3);border-radius:8px;padding:9px;text-align:center}
+.kb-num{font-size:15px;font-weight:700;color:#fff}
+.kb-label{font-size:10px;color:var(--text-3);margin-top:2px}
+.kudos-actions{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.ka-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.ka-row:last-child{border-bottom:none}
+.ka-action{color:var(--text-2)}
+.ka-earn{font-weight:600;color:var(--green)}
+
+/* TOP MOVERS */
+.mover-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.mover-row:last-child{border-bottom:none}
+.mover-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.mover-name{font-size:13px;font-weight:500;flex:1}
+.mover-change{font-size:12px;font-weight:700}
+.mover-up{color:var(--green)}
+.mover-down{color:var(--red)}
+
+/* ACHIEVEMENTS TICKER */
+.achievements-ticker{overflow:hidden;height:36px;position:relative;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border)}
+.ticker-inner{display:flex;align-items:center;gap:0;position:absolute;white-space:nowrap;animation:ticker 28s linear infinite}
+@keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+.ticker-item{padding:0 24px;font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:6px;border-right:1px solid var(--border)}
+.ticker-icon{font-size:14px}
+
+/* YOUR POSITION */
+.your-pos{background:rgba(255,77,0,0.08);border:1px solid rgba(255,77,0,0.2);border-radius:10px;padding:12px;margin-top:4px}
+.yp-label{font-size:10px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.yp-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.yp-item{text-align:center}
+.yp-num{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.yp-lbl{font-size:10px;color:var(--text-3);margin-top:2px}
+
+/* EXAM-WISE TABS */
+.exam-lb-tabs{display:flex;gap:3px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.exam-lb-tabs::-webkit-scrollbar{display:none}
+.elt{background:none;border:1px solid var(--border);color:var(--text-3);font-size:12px;font-weight:500;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.elt.active{background:rgba(255,255,255,0.06);color:#fff;border-color:var(--border-2)}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border)}
+.page-info{font-size:13px;color:var(--text-3)}
+.page-btns{display:flex;gap:4px}
+.page-btn{background:none;border:1px solid var(--border);color:var(--text-2);font-size:12px;font-weight:500;padding:5px 12px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.page-btn:hover{border-color:var(--border-2);color:#fff}
+.page-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--dark-3);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.3s;border-left:3px solid var(--green);max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ANIMATIONS */
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.lb-row{animation:fadeSlideIn 0.3s ease both}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="window.location.href='1_mba_club_landing.html'" style="cursor:pointer">MBA<span>Club</span></div>
+  <div class="nav-pill">
+    <button class="npb" onclick="window.location.href='2_mba_club_forum.html'">Forum</button>
+    <button class="npb" onclick="window.location.href='3_mba_club_questionbank.html'">Questions</button>
+    <button class="npb" onclick="window.location.href='4_mba_club_ai_tutor.html'">AI Tutor</button>
+    <button class="npb" onclick="window.location.href='5_mba_club_mocktest.html'">Mock Tests</button>
+    <button class="npb active">Leaderboard</button>
+  </div>
+  <div class="nav-right">
+    <div class="user-chip" onclick="scrollToMe()">
+      <div class="uc-av">RS</div>
+      <div><div class="uc-name">Rahul Sharma</div><div class="uc-rank">#184 Global</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ACHIEVEMENTS TICKER -->
+<div class="achievements-ticker">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-title">MBA Club <span>Hall of Fame</span></div>
+    <div class="hero-sub">50,241 members competing · Rankings update every 24 hours</div>
+    <div class="hero-stats">
+      <div class="hs-item"><div class="hs-num" style="color:var(--brand)">50,241</div><div class="hs-lbl">Total Members</div></div>
+      <div class="hs-item"><div class="hs-num" style="color:var(--green)">1,847</div><div class="hs-lbl">Online Now</div></div>
+      <div class="hs-item"><div class="hs-num" style="color:var(--gold)">12,430</div><div class="hs-lbl">Qs Solved Today</div></div>
+      <div class="hs-item"><div class="hs-num" style="color:var(--blue)">342</div><div class="hs-lbl">Posts Today</div></div>
+      <div class="hs-item"><div class="hs-num" style="color:var(--purple)">89</div><div class="hs-lbl">Mocks Taken Today</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PODIUM -->
+<div class="podium-section">
+  <div class="podium-title">🏆 This Month's Top 3</div>
+  <div class="podium" id="podium"></div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-tabs">
+    <button class="ftab active" onclick="switchPeriod('monthly',this)">Monthly</button>
+    <button class="ftab" onclick="switchPeriod('weekly',this)">Weekly</button>
+    <button class="ftab" onclick="switchPeriod('alltime',this)">All Time</button>
+  </div>
+  <div class="filter-sep"></div>
+  <div class="exam-filter">
+    <button class="efb active" onclick="switchExam('overall',this)">Overall</button>
+    <button class="efb" onclick="switchExam('CAT',this)">CAT</button>
+    <button class="efb" onclick="switchExam('XAT',this)">XAT</button>
+    <button class="efb" onclick="switchExam('SNAP',this)">SNAP</button>
+    <button class="efb" onclick="switchExam('CMAT',this)">CMAT</button>
+  </div>
+  <div class="search-wrap">
+    <input class="lb-search" placeholder="Search member..." oninput="filterSearch(this.value)" id="lb-search">
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="lb-layout">
+  <!-- LEADERBOARD TABLE -->
+  <div>
+    <div class="lb-table" id="lb-table">
+      <div class="lb-header">
+        <div style="text-align:center">Rank</div>
+        <div>Member</div>
+        <div style="text-align:center">Kudos</div>
+        <div style="text-align:center">Solved</div>
+        <div style="text-align:center">Accuracy</div>
+        <div style="text-align:center">Streak</div>
+      </div>
+      <div id="lb-rows"></div>
+      <div class="pagination">
+        <div class="page-info" id="page-info">Showing 1–20 of 50,241</div>
+        <div class="page-btns">
+          <button class="page-btn" onclick="changePage(-1)">← Prev</button>
+          <button class="page-btn active" id="pg1" onclick="setPage(1,this)">1</button>
+          <button class="page-btn" id="pg2" onclick="setPage(2,this)">2</button>
+          <button class="page-btn" id="pg3" onclick="setPage(3,this)">3</button>
+          <button class="page-btn">...</button>
+          <button class="page-btn" onclick="setPage(2512,this)">2512</button>
+          <button class="page-btn" onclick="changePage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- YOUR POSITION CARD -->
+    <div style="margin-top:14px">
+      <div class="your-pos">
+        <div class="yp-label">📍 Your Position</div>
+        <div class="yp-stats">
+          <div class="yp-item"><div class="yp-num">#184</div><div class="yp-lbl">Global Rank</div></div>
+          <div class="yp-item"><div class="yp-num">1,840</div><div class="yp-lbl">Kudos</div></div>
+          <div class="yp-item"><div class="yp-num">Top 0.4%</div><div class="yp-lbl">Percentile</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text-3)">
+          You need <span style="color:var(--green);font-weight:600">+240 kudos</span> to reach rank #100 · 
+          <span style="color:var(--brand);font-weight:600;cursor:pointer" onclick="showToast('Tips to earn kudos faster loaded!')">How to earn faster →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE PANELS -->
+  <div class="side-panels">
+
+    <!-- KUDOS ECONOMY -->
+    <div class="side-card">
+      <div class="sc-title">💰 Your Kudos</div>
+      <div class="kudos-display">
+        <div class="kudos-num">1,840</div>
+        <div class="kudos-label">Total Kudos Earned</div>
+      </div>
+      <div class="kudos-breakdown">
+        <div class="kb-item"><div class="kb-num" style="color:var(--green)">+286</div><div class="kb-label">This Week</div></div>
+        <div class="kb-item"><div class="kb-num" style="color:var(--blue)">+1,240</div><div class="kb-label">This Month</div></div>
+        <div class="kb-item"><div class="kb-num">342</div><div class="kb-label">From Forum</div></div>
+        <div class="kb-item"><div class="kb-num">1,498</div><div class="kb-label">From Practice</div></div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">How to earn kudos</div>
+      <div class="kudos-actions">
+        <div class="ka-row"><span class="ka-action">Solve a question correctly</span><span class="ka-earn">+3</span></div>
+        <div class="ka-row"><span class="ka-action">Post in forum</span><span class="ka-earn">+5</span></div>
+        <div class="ka-row"><span class="ka-action">Your reply gets kudos</span><span class="ka-earn">+2/kudos</span></div>
+        <div class="ka-row"><span class="ka-action">Complete a mock test</span><span class="ka-earn">+25</span></div>
+        <div class="ka-row"><span class="ka-action">Daily streak bonus</span><span class="ka-earn">+10/day</span></div>
+        <div class="ka-row"><span class="ka-action">Use AI Tutor</span><span class="ka-earn">+5</span></div>
+      </div>
+    </div>
+
+    <!-- WEEKLY CHALLENGES -->
+    <div class="side-card">
+      <div class="sc-title">⚡ Weekly Challenges</div>
+      <div class="challenge-card active-challenge">
+        <div class="cc-top">
+          <div class="cc-icon">🧮</div>
+          <div><div class="cc-title">Quant Sprint</div><div class="cc-sub">Solve 50 Quant questions this week</div></div>
+        </div>
+        <div class="cc-progress">
+          <div class="cc-prog-track"><div class="cc-prog-fill" style="width:72%"></div></div>
+          <div class="cc-prog-label"><span>36 / 50 done</span><span>3 days left</span></div>
+        </div>
+        <div class="cc-reward">🏆 Reward: +150 kudos + Quant Sprint badge</div>
+      </div>
+      <div class="challenge-card">
+        <div class="cc-top">
+          <div class="cc-icon">📖</div>
+          <div><div class="cc-title">RC Marathon</div><div class="cc-sub">Complete 15 RC passages this week</div></div>
+        </div>
+        <div class="cc-progress">
+          <div class="cc-prog-track"><div class="cc-prog-fill" style="width:40%;background:var(--purple)"></div></div>
+          <div class="cc-prog-label"><span>6 / 15 done</span><span>3 days left</span></div>
+        </div>
+        <div class="cc-reward" style="color:var(--purple)">🏆 Reward: +100 kudos + RC Expert badge</div>
+      </div>
+      <div class="challenge-card">
+        <div class="cc-top">
+          <div class="cc-icon">📝</div>
+          <div><div class="cc-title">Mock Master</div><div class="cc-sub">Take 2 full mock tests this week</div></div>
+        </div>
+        <div class="cc-progress">
+          <div class="cc-prog-track"><div class="cc-prog-fill" style="width:50%;background:var(--blue)"></div></div>
+          <div class="cc-prog-label"><span>1 / 2 done</span><span>3 days left</span></div>
+        </div>
+        <div class="cc-reward" style="color:var(--blue)">🏆 Reward: +200 kudos + Mock Warrior badge</div>
+      </div>
+    </div>
+
+    <!-- TOP MOVERS -->
+    <div class="side-card">
+      <div class="sc-title">🚀 Biggest Climbers This Week</div>
+      <div id="top-movers"></div>
+    </div>
+
+    <!-- MINI DISTRIBUTION -->
+    <div class="side-card">
+      <div class="sc-title">📊 Score Distribution</div>
+      <div style="position:relative;height:140px"><canvas id="distChart"></canvas></div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-3);text-align:center">Your score percentile vs community</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const MEMBERS = [
+  {rank:1,  prev:1,  name:'Arjun_IIM_A',   initials:'AK', avBg:'#7C3AED', college:'IIM Ahmedabad',   badge:'CAT 99.98',  bBg:'rgba(124,58,237,0.2)',  bColor:'#A78BFA', kudos:12840, solved:1842, accuracy:91, streak:45, exam:'CAT', me:false},
+  {rank:2,  prev:3,  name:'Priya_XLRI',    initials:'PS', avBg:'#2563EB', college:'XLRI Jamshedpur', badge:'XAT 99.5',   bBg:'rgba(37,99,235,0.2)',   bColor:'#93C5FD', kudos:11290, solved:1620, accuracy:88, streak:32, exam:'XAT', me:false},
+  {rank:3,  prev:2,  name:'Rohit_SIBM',    initials:'RS', avBg:'#059669', college:'SIBM Pune',       badge:'SNAP 99.2',  bBg:'rgba(5,150,105,0.2)',   bColor:'#6EE7B7', kudos:9870,  solved:1480, accuracy:86, streak:28, exam:'SNAP',me:false},
+  {rank:4,  prev:4,  name:'Sneha_FMS',     initials:'SF', avBg:'#DB2777', college:'FMS Delhi',       badge:'CAT 99.4',   bBg:'rgba(219,39,119,0.2)',  bColor:'#F9A8D4', kudos:8540,  solved:1320, accuracy:85, streak:21, exam:'CAT', me:false},
+  {rank:5,  prev:7,  name:'Vikram_JBIMS',  initials:'VJ', avBg:'#D97706', college:'JBIMS Mumbai',    badge:'CMAT 99.8',  bBg:'rgba(217,119,6,0.2)',   bColor:'#FCD34D', kudos:7920,  solved:1201, accuracy:83, streak:18, exam:'CMAT',me:false},
+  {rank:6,  prev:5,  name:'Ananya_MDI',    initials:'AM', avBg:'#0891B2', college:'MDI Gurgaon',     badge:'CAT 99.1',   bBg:'rgba(8,145,178,0.2)',   bColor:'#67E8F9', kudos:7410,  solved:1140, accuracy:82, streak:15, exam:'CAT', me:false},
+  {rank:7,  prev:9,  name:'Karan_IIM_L',   initials:'KA', avBg:'#7C3AED', college:'IIM Lucknow',     badge:'CAT 99.0',   bBg:'rgba(124,58,237,0.2)',  bColor:'#A78BFA', kudos:6980,  solved:1080, accuracy:80, streak:22, exam:'CAT', me:false},
+  {rank:8,  prev:6,  name:'Meera_IIM_K',   initials:'MK', avBg:'#DC2626', college:'IIM Kozhikode',   badge:'CAT 98.8',   bBg:'rgba(220,38,38,0.2)',   bColor:'#FCA5A5', kudos:6520,  solved:1020, accuracy:79, streak:11, exam:'CAT', me:false},
+  {rank:9,  prev:10, name:'Dev_SPJIMR',    initials:'DV', avBg:'#059669', college:'SPJIMR Mumbai',   badge:'CAT 98.5',   bBg:'rgba(5,150,105,0.2)',   bColor:'#6EE7B7', kudos:5990,  solved:960,  accuracy:78, streak:8,  exam:'CAT', me:false},
+  {rank:10, prev:8,  name:'Isha_NMIMS',    initials:'IN', avBg:'#F59E0B', college:'NMIMS Mumbai',    badge:'NMAT 98',    bBg:'rgba(245,158,11,0.2)',  bColor:'#FDE68A', kudos:5640,  solved:910,  accuracy:76, streak:14, exam:'NMAT',me:false},
+  {rank:11, prev:11, name:'Rahul_K',       initials:'RK', avBg:'#8B5CF6', college:'IIM Calcutta',    badge:'CAT 98.2',   bBg:'rgba(139,92,246,0.2)',  bColor:'#C4B5FD', kudos:5210,  solved:870,  accuracy:75, streak:9,  exam:'CAT', me:false},
+  {rank:12, prev:14, name:'Pooja_IIM_I',   initials:'PI', avBg:'#EC4899', college:'IIM Indore',      badge:'CAT 97.8',   bBg:'rgba(236,72,153,0.2)',  bColor:'#FBCFE8', kudos:4870,  solved:820,  accuracy:74, streak:17, exam:'CAT', me:false},
+  {rank:13, prev:13, name:'Aditya_ISB',    initials:'AI', avBg:'#0EA5E9', college:'ISB Hyderabad',   badge:'GMAT 760',   bBg:'rgba(14,165,233,0.2)',  bColor:'#7DD3FC', kudos:4520,  solved:780,  accuracy:73, streak:6,  exam:'CAT', me:false},
+  {rank:14, prev:12, name:'Neha_IIFT',     initials:'NI', avBg:'#10B981', college:'IIFT Delhi',      badge:'IIFT 98',    bBg:'rgba(16,185,129,0.2)',  bColor:'#6EE7B7', kudos:4280,  solved:740,  accuracy:72, streak:20, exam:'CAT', me:false},
+  {rank:15, prev:16, name:'Saurabh_GIM',   initials:'SG', avBg:'#F97316', college:'Goa Institute',   badge:'CAT 97.2',   bBg:'rgba(249,115,22,0.2)',  bColor:'#FDBA74', kudos:4010,  solved:710,  accuracy:71, streak:13, exam:'CAT', me:false},
+  {rank:16, prev:15, name:'Priyanka_K',    initials:'PK', avBg:'#6366F1', college:'K J Somaiya',     badge:'CAT 96.8',   bBg:'rgba(99,102,241,0.2)',  bColor:'#A5B4FC', kudos:3820,  solved:680,  accuracy:70, streak:5,  exam:'CAT', me:false},
+  {rank:17, prev:20, name:'Aryan_IIM_R',   initials:'AR', avBg:'#14B8A6', college:'IIM Rohtak',      badge:'CAT 96.5',   bBg:'rgba(20,184,166,0.2)',  bColor:'#5EEAD4', kudos:3640,  solved:650,  accuracy:69, streak:12, exam:'CAT', me:false},
+  {rank:18, prev:18, name:'Tanya_MICA',    initials:'TM', avBg:'#A855F7', college:'MICA Ahmedabad',  badge:'CAT 96.1',   bBg:'rgba(168,85,247,0.2)',  bColor:'#D8B4FE', kudos:3480,  solved:620,  accuracy:68, streak:7,  exam:'CAT', me:false},
+  {rank:19, prev:17, name:'Rohan_IMT',     initials:'RI', avBg:'#EF4444', college:'IMT Ghaziabad',   badge:'CAT 95.8',   bBg:'rgba(239,68,68,0.2)',   bColor:'#FCA5A5', kudos:3320,  solved:600,  accuracy:67, streak:3,  exam:'CAT', me:false},
+  {rank:184,prev:247,name:'Rahul Sharma',  initials:'RS', avBg:'#FF4D00', college:'Targeting IIM',   badge:'You',        bBg:'rgba(255,77,0,0.25)',   bColor:'#FF7A40', kudos:1840,  solved:487,  accuracy:73, streak:12, exam:'CAT', me:true},
+];
+
+const PODIUM_DATA = MEMBERS.slice(0,3);
+let currentPeriod = 'monthly', currentExam = 'overall', currentPage = 1;
+let searchQuery = '';
+
+// ── TICKER ──
+const tickerItems = [
+  '🏆 Arjun_IIM_A just crossed 12,000 kudos!',
+  '🔥 Priya_XLRI is on a 32-day streak!',
+  '📝 Vikram_JBIMS completed XAT Mock #5 — 96th percentile',
+  '⚡ Sneha_FMS solved 20 LRDI questions in 18 minutes',
+  '🎯 Karan_IIM_L earned the "Quant King" badge',
+  '🚀 Ananya_MDI rose 14 ranks this week!',
+  '💬 New post trending: "CAT 2025 VARC — game changing strategy"',
+  '🏅 Meera_IIM_K earned "Speed Demon" badge',
+  '📊 Dev_SPJIMR scored 99th percentile in CAT Mock #8',
+];
+document.getElementById('ticker').innerHTML = [...tickerItems,...tickerItems].map(t =>
+  `<div class="ticker-item"><span class="ticker-icon">⚡</span>${t}</div>`).join('');
+
+// ── PODIUM ──
+function buildPodium() {
+  const order = [PODIUM_DATA[1], PODIUM_DATA[0], PODIUM_DATA[2]];
+  const rankLabels = ['2nd', '1st', '3rd'];
+  const crowns = ['', '👑', ''];
+  const classes = ['p2', 'p1', 'p3'];
+  const heights = [72, 100, 52];
+  document.getElementById('podium').innerHTML = order.map((m, i) => `
+    <div class="podium-spot ${classes[i]}" onclick="showToast('Viewing ${m.name}\'s profile...')">
+      <div class="podium-av" style="background:${m.avBg}20;border:2px solid ${m.avBg}50;color:${m.avBg}">
+        ${crowns[i] ? `<div class="crown">${crowns[i]}</div>` : ''}
+        ${m.initials}
+      </div>
+      <div class="podium-name">${m.name}</div>
+      <div class="podium-score">${m.kudos.toLocaleString()} kudos</div>
+      <span class="podium-badge" style="background:${m.bBg};color:${m.bColor}">${m.badge}</span>
+      <div class="podium-block" style="height:${heights[i]}px">
+        <div class="podium-rank">${rankLabels[i]}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── LEADERBOARD ROWS ──
+function buildRows() {
+  let list = [...MEMBERS];
+  if (searchQuery) {
+    list = list.filter(m => m.name.toLowerCase().includes(searchQuery) || m.college.toLowerCase().includes(searchQuery));
+  }
+  if (currentExam !== 'overall') list = list.filter(m => m.exam === currentExam || m.me);
+
+  const meRow = list.find(m => m.me);
+  const visibleList = list.filter(m => !m.me).slice(0, 19);
+  if (meRow && !visibleList.find(m => m.me)) visibleList.push(meRow);
+
+  document.getElementById('lb-rows').innerHTML = visibleList.map((m, idx) => {
+    const rankChange = m.prev - m.rank;
+    const changeHtml = rankChange > 0
+      ? `<div class="rank-change rc-up">↑ ${rankChange}</div>`
+      : rankChange < 0
+      ? `<div class="rank-change rc-down">↓ ${Math.abs(rankChange)}</div>`
+      : `<div class="rank-change rc-same">—</div>`;
+    const rankColor = m.rank === 1 ? 'rank-gold' : m.rank === 2 ? 'rank-silver' : m.rank === 3 ? 'rank-bronze' : '';
+    const accColor = m.accuracy >= 80 ? '#10B981' : m.accuracy >= 65 ? '#F59E0B' : '#EF4444';
+    const streakFire = m.streak >= 30 ? '🔥🔥' : m.streak >= 14 ? '🔥' : '·';
+    return `
+      <div class="lb-row${m.me?' me':m.rank<=3?' top3':''}" style="animation-delay:${idx*0.03}s" onclick="showToast('${m.me?'That\'s you! 🎯':'Viewing '+m.name+'\'s profile...'}')">
+        <div class="rank-cell">
+          <div>
+            <div class="rank-num ${rankColor}">${m.rank <= 3 ? ['🥇','🥈','🥉'][m.rank-1] : m.rank}</div>
+            ${changeHtml}
+          </div>
+        </div>
+        <div class="user-cell">
+          <div class="lb-av" style="background:${m.avBg}22;color:${m.avBg}">${m.initials}</div>
+          <div class="lb-user-info">
+            <div class="lb-username">${m.name}</div>
+            <div class="lb-user-sub">
+              <span class="lb-badge" style="background:${m.bBg};color:${m.bColor}">${m.badge}</span>
+              <span class="lb-college">${m.college}</span>
+            </div>
+          </div>
+        </div>
+        <div class="metric-cell" style="color:var(--brand)">${m.kudos.toLocaleString()}</div>
+        <div class="metric-cell" style="color:var(--blue)">${m.solved.toLocaleString()}</div>
+        <div class="accuracy-cell">
+          <div class="acc-num" style="color:${accColor}">${m.accuracy}%</div>
+          <div class="acc-bar"><div class="acc-fill" style="width:${m.accuracy}%;background:${accColor}"></div></div>
+        </div>
+        <div class="streak-cell">
+          <div class="streak-fire">${streakFire}</div>
+          <div class="streak-days" style="color:${m.streak>=14?'var(--brand)':'var(--text-3)'}">${m.streak}d</div>
+        </div>
+        ${m.me ? '<div class="me-tag">You</div>' : ''}
+      </div>`;
+  }).join('');
+  document.getElementById('page-info').textContent = `Showing 1–${Math.min(20, list.length)} of ${list.length > 100 ? '50,241' : list.length}`;
+}
+
+// ── TOP MOVERS ──
+function buildMovers() {
+  const movers = [
+    { name:'Vikram_JBIMS', initials:'VJ', bg:'#D97706', change:'+63', up:true },
+    { name:'Aryan_IIM_R',  initials:'AR', bg:'#14B8A6', change:'+41', up:true },
+    { name:'Rahul Sharma', initials:'RS', bg:'#FF4D00', change:'+63', up:true },
+    { name:'Pooja_IIM_I',  initials:'PI', bg:'#EC4899', change:'+28', up:true },
+    { name:'Karan_IIM_L',  initials:'KA', bg:'#7C3AED', change:'+22', up:true },
+  ];
+  document.getElementById('top-movers').innerHTML = movers.map(m => `
+    <div class="mover-row">
+      <div class="mover-av" style="background:${m.bg}22;color:${m.bg}">${m.initials}</div>
+      <div class="mover-name">${m.name}</div>
+      <div class="mover-change ${m.up?'mover-up':'mover-down'}">${m.up?'↑':'↓'} ${m.change}</div>
+    </div>`).join('');
+}
+
+// ── DISTRIBUTION CHART ──
+function buildDistChart() {
+  const ctx = document.getElementById('distChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['0-10k','10-20k','20-30k','30-40k','40-50k','50k+'],
+      datasets: [{
+        data: [18420, 14300, 9200, 5100, 2400, 821],
+        backgroundColor: ['rgba(255,255,255,0.06)','rgba(255,255,255,0.06)','rgba(255,255,255,0.06)','rgba(255,77,0,0.4)','rgba(255,255,255,0.06)','rgba(255,255,255,0.06)'],
+        borderRadius: 4, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' members' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 9, family: 'DM Sans' } } },
+        y: { display: false }
+      }
+    }
+  });
+}
+
+// ── CONTROLS ──
+function switchPeriod(p, el) {
+  currentPeriod = p;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  buildRows();
+  showToast('Showing ' + p.charAt(0).toUpperCase() + p.slice(1) + ' rankings');
+}
+function switchExam(e, el) {
+  currentExam = e;
+  document.querySelectorAll('.efb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  buildRows();
+}
+function filterSearch(v) {
+  searchQuery = v.toLowerCase();
+  buildRows();
+}
+function changePage(dir) {
+  currentPage = Math.max(1, Math.min(2512, currentPage + dir));
+  showToast('Page ' + currentPage);
+}
+function setPage(p, el) {
+  currentPage = p;
+  document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+function scrollToMe() {
+  const meRow = document.querySelector('.lb-row.me');
+  if (meRow) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+buildPodium();
+buildRows();
+buildMovers();
+buildDistChart();
+</script>
+</body>
+</html>

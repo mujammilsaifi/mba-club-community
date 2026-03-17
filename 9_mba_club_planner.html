@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBA Club — Study Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#FF4D00;--brand-dark:#CC3D00;--brand-light:#FFF3EE;--brand-mid:rgba(255,77,0,0.1);
+  --dark:#0F172A;--dark-2:#1E293B;
+  --text:#1a1a2e;--text-2:#5a6a7e;--text-3:#94a3b8;
+  --bg:#F0EDE8;--card:#ffffff;--border:#E3DDD6;--border-2:#ccc6be;
+  --green:#059669;--green-bg:#ECFDF5;--green-light:#D1FAE5;
+  --red:#DC2626;--red-bg:#FEF2F2;
+  --yellow:#D97706;--yellow-bg:#FFFBEB;
+  --blue:#2563EB;--blue-bg:#EFF6FF;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --teal:#0891B2;--teal-bg:#ECFEFF;
+  --pink:#DB2777;--pink-bg:#FDF2F8;
+  --cat:#FF4D00;--xat:#2563EB;--snap:#7C3AED;--cmat:#059669;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
+
+/* NAV */
+.nav{background:var(--dark);height:56px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:200}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0}
+.logo span{color:var(--brand)}
+.nav-pill{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 5px;display:flex;gap:2px}
+.npb{background:none;border:none;color:rgba(255,255,255,0.4);font-size:12px;font-weight:500;padding:5px 13px;border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.npb:hover{color:rgba(255,255,255,0.75)}
+.npb.active{background:var(--brand);color:#fff}
+.nav-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nav-date{font-size:13px;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace}
+.btn-add-session{background:var(--brand);color:#fff;border:none;font-size:13px;font-weight:600;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* PAGE TABS */
+.page-tabs{background:var(--dark);border-top:1px solid rgba(255,255,255,0.06);padding:0 24px}
+.page-tabs-inner{max-width:1280px;margin:0 auto;display:flex}
+.pt{background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;font-weight:500;padding:13px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.pt:hover{color:rgba(255,255,255,0.75)}
+.pt.active{color:#fff;border-bottom-color:var(--brand)}
+
+/* COUNTDOWN STRIP */
+.countdown-strip{background:var(--dark-2);border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 24px;overflow-x:auto;scrollbar-width:none}
+.countdown-strip::-webkit-scrollbar{display:none}
+.cs-inner{max-width:1280px;margin:0 auto;display:flex;gap:16px;align-items:center}
+.cd-item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 14px;flex-shrink:0;cursor:pointer;transition:all 0.15s}
+.cd-item:hover{border-color:rgba(255,255,255,0.15)}
+.cd-exam-tag{font-size:11px;font-weight:800;padding:3px 8px;border-radius:5px}
+.cd-info{text-align:center}
+.cd-days{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;line-height:1}
+.cd-label{font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px}
+.cd-date{font-size:11px;color:rgba(255,255,255,0.3)}
+.cd-bar-wrap{width:80px}
+.cd-bar-track{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+.cd-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+.cd-bar-pct{font-size:9px;color:rgba(255,255,255,0.25);margin-top:3px;text-align:right}
+.strip-divider{width:1px;height:32px;background:rgba(255,255,255,0.07);flex-shrink:0}
+.strip-label{font-size:11px;color:rgba(255,255,255,0.2);white-space:nowrap;flex-shrink:0}
+
+/* MAIN LAYOUT */
+.main{max-width:1280px;margin:0 auto;padding:20px 24px}
+
+/* DAILY PLANNER */
+.daily-layout{display:grid;grid-template-columns:1fr 300px;gap:18px}
+@media(max-width:900px){.daily-layout{grid-template-columns:1fr}}
+
+/* TODAY HEADER */
+.today-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.today-date{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.today-sub{font-size:13px;color:var(--text-3);margin-top:2px}
+.today-nav{display:flex;gap:6px;align-items:center}
+.day-nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text-2);font-size:13px;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.day-nav-btn:hover{border-color:var(--border-2);color:var(--text)}
+.today-btn{background:var(--brand);color:#fff;border:none;font-size:13px;font-weight:600;padding:6px 16px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* PROGRESS RING */
+.progress-ring-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:18px}
+.ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0}
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:8}
+.ring-fill{fill:none;stroke:var(--brand);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Syne',sans-serif}
+.ring-pct{font-size:18px;font-weight:800;color:var(--brand);line-height:1}
+.ring-done{font-size:9px;color:var(--text-3)}
+.ring-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1}
+.rs-item{text-align:center}
+.rs-num{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1}
+.rs-label{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* SCHEDULE */
+.schedule-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.sc-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sc-title{font-size:14px;font-weight:700;color:var(--text)}
+.sc-add-btn{background:none;border:1px solid var(--border);color:var(--text-2);font-size:12px;padding:5px 12px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.sc-add-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.time-slots{display:flex;flex-direction:column}
+.time-slot{display:flex;gap:0;border-bottom:1px solid var(--border);min-height:60px}
+.time-slot:last-child{border-bottom:none}
+.ts-time{width:72px;padding:14px 12px;font-size:11px;font-weight:600;color:var(--text-3);font-family:'JetBrains Mono',monospace;flex-shrink:0;border-right:1px solid var(--border);background:rgba(0,0,0,0.015)}
+.ts-content{flex:1;padding:8px 14px;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.session-block{border-radius:8px;padding:8px 12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px}
+.session-block:hover{filter:brightness(0.97)}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-info{flex:1;min-width:0}
+.sb-title{font-size:13px;font-weight:600;line-height:1.3}
+.sb-meta{font-size:11px;margin-top:2px;opacity:0.7}
+.sb-duration{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.sb-check{background:none;border:none;cursor:pointer;font-size:16px;flex-shrink:0;transition:transform 0.2s}
+.sb-check:hover{transform:scale(1.2)}
+.ts-empty{color:var(--text-3);font-size:12px;padding:4px 0;cursor:pointer;transition:color 0.15s}
+.ts-empty:hover{color:var(--brand)}
+
+/* SIDE PANEL */
+.side-panel{display:flex;flex-direction:column;gap:14px}
+.sp-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.sp-title{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px}
+
+/* DAILY TARGETS */
+.target-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.target-item:last-child{border-bottom:none}
+.target-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:11px}
+.target-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.target-info{flex:1;min-width:0}
+.target-title{font-size:13px;font-weight:500;color:var(--text);transition:all 0.2s}
+.target-item.done .target-title{text-decoration:line-through;color:var(--text-3)}
+.target-meta{font-size:11px;color:var(--text-3);margin-top:1px}
+.target-pts{font-size:11px;font-weight:700;color:var(--brand);flex-shrink:0}
+
+/* TOPIC CHECKLIST */
+.topic-group{margin-bottom:12px}
+.tg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.tg-name{font-size:13px;font-weight:700;color:var(--text)}
+.tg-progress{font-size:11px;color:var(--text-3)}
+.tg-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-bottom:7px}
+.tg-fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+.topic-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.topic-item:last-child{border-bottom:none}
+.topic-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:9px}
+.topic-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.topic-name{font-size:12px;color:var(--text-2);flex:1;transition:all 0.2s}
+.topic-item.done .topic-name{text-decoration:line-through;color:var(--text-3)}
+.topic-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px}
+
+/* ===== CALENDAR VIEW ===== */
+.calendar-layout{display:grid;grid-template-columns:1fr 280px;gap:18px}
+@media(max-width:900px){.calendar-layout{grid-template-columns:1fr}}
+.calendar-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.cal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cal-month{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.cal-nav{display:flex;gap:6px}
+.cal-nav-btn{background:none;border:1px solid var(--border);color:var(--text-2);font-size:13px;width:32px;height:32px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.cal-nav-btn:hover{border-color:var(--border-2);color:var(--text)}
+.cal-grid{padding:12px}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-day-label{text-align:center;font-size:11px;font-weight:700;color:var(--text-3);padding:4px}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{min-height:68px;border-radius:9px;padding:6px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;position:relative}
+.cal-day:hover{background:var(--bg);border-color:var(--border)}
+.cal-day.today{background:var(--brand-light);border-color:var(--brand)}
+.cal-day.selected{background:var(--dark);border-color:var(--dark)}
+.cal-day.other-month{opacity:0.35}
+.cal-day.has-sessions{border-color:var(--border)}
+.cal-day-num{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.cal-day.today .cal-day-num{color:var(--brand)}
+.cal-day.selected .cal-day-num{color:#fff}
+.cal-session-dot{font-size:10px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.cal-day.selected .cal-session-dot{opacity:0.85}
+.cal-more{font-size:9px;color:var(--text-3);font-weight:600}
+.cal-day.streak-day::after{content:'🔥';position:absolute;top:4px;right:4px;font-size:9px}
+
+/* CALENDAR SIDE */
+.cal-selected-day{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.csd-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px}
+.csd-session{background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--brand);cursor:pointer;transition:all 0.15s}
+.csd-session:hover{background:var(--border)}
+.csd-session-title{font-size:13px;font-weight:600}
+.csd-session-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.csd-empty{font-size:13px;color:var(--text-3);text-align:center;padding:20px 0}
+
+/* WEEKLY PLAN */
+.weekly-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.wc-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.wc-title{font-size:14px;font-weight:700}
+.wc-nav{display:flex;gap:6px;align-items:center}
+.wc-week{font-size:12px;color:var(--text-2);font-weight:500}
+.wc-nav-btn{background:none;border:1px solid var(--border);color:var(--text-2);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.wc-nav-btn:hover{border-color:var(--brand);color:var(--brand)}
+.weekly-row{display:grid;grid-template-columns:80px repeat(7,1fr);border-bottom:1px solid var(--border)}
+.weekly-row:last-child{border-bottom:none}
+.wr-time{padding:10px 12px;font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;border-right:1px solid var(--border);background:rgba(0,0,0,0.02)}
+.wr-cell{padding:6px;border-right:1px solid var(--border);min-height:52px}
+.wr-cell:last-child{border-right:none}
+.wc-block{border-radius:5px;padding:4px 6px;font-size:10px;font-weight:600;cursor:pointer;transition:all 0.15s;margin-bottom:3px}
+.wc-block:hover{filter:brightness(0.95)}
+.wr-header-cell{padding:8px 6px;text-align:center;border-right:1px solid var(--border);background:var(--bg)}
+.wr-header-cell:last-child{border-right:none}
+.wr-day-name{font-size:11px;font-weight:700;color:var(--text-3)}
+.wr-day-num{font-size:14px;font-weight:700;color:var(--text)}
+.wr-header-cell.today-col .wr-day-num{color:var(--brand)}
+
+/* STUDY PLAN GENERATOR */
+.spg-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.spg-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.spg-sub{font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6}
+.spg-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:700px){.spg-form{grid-template-columns:1fr 1fr}}
+.spg-group{}
+.spg-label{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px}
+.spg-select, .spg-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
+.spg-select:focus, .spg-input:focus{border-color:var(--brand)}
+.spg-generate-btn{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s}
+.spg-generate-btn:hover{background:var(--brand-dark)}
+
+/* GENERATED PLAN */
+.gen-plan{background:var(--dark);border-radius:14px;padding:20px;color:#fff;margin-top:16px}
+.gp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.gp-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.gp-stats{display:flex;gap:16px}
+.gp-stat{text-align:center}
+.gp-stat-num{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--brand);line-height:1}
+.gp-stat-lbl{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px}
+.phase-section{margin-bottom:20px}
+.phase-title{font-size:13px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.phase-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.week-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.wk-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.wk-title{font-size:13px;font-weight:600;color:#fff}
+.wk-focus{font-size:11px;color:rgba(255,255,255,0.4)}
+.wk-daily{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wk-day{background:rgba(255,255,255,0.04);border-radius:6px;padding:6px 4px;text-align:center}
+.wk-day-name{font-size:9px;color:rgba(255,255,255,0.3);margin-bottom:3px;font-weight:600}
+.wk-day-content{font-size:10px;color:rgba(255,255,255,0.65);line-height:1.4}
+.wk-day.rest{opacity:0.4}
+.wk-day.rest .wk-day-content{color:rgba(255,255,255,0.3)}
+
+/* ADD SESSION MODAL */
+#add-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.add-modal-card{background:var(--card);border-radius:16px;max-width:480px;width:100%;overflow:hidden}
+.amc-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.amc-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.amc-close{background:none;border:none;color:var(--text-3);font-size:20px;cursor:pointer;padding:2px 8px;border-radius:6px}
+.amc-close:hover{background:var(--bg);color:var(--text)}
+.amc-body{padding:18px 20px}
+.form-row{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px}
+.form-input, .form-select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
+.form-input:focus, .form-select:focus{border-color:var(--brand)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.color-picker{display:flex;gap:6px;flex-wrap:wrap}
+.cp-btn{width:28px;height:28px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.cp-btn.active{border-color:var(--dark);transform:scale(1.15)}
+.amc-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--text-2);font-size:13px;padding:9px 18px;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-save{background:var(--brand);color:#fff;border:none;font-size:13px;font-weight:600;padding:9px 22px;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-save:hover{background:var(--brand-dark)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--dark);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.3s;border-left:3px solid var(--green)}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="window.location.href='1_mba_club_landing.html'" style="cursor:pointer">MBA<span>Club</span></div>
+  <div class="nav-pill">
+    <button class="npb" onclick="window.location.href='2_mba_club_forum.html'">Forum</button>
+    <button class="npb" onclick="window.location.href='3_mba_club_questionbank.html'">Questions</button>
+    <button class="npb active">Planner</button>
+    <button class="npb" onclick="window.location.href='5_mba_club_mocktest.html'">Mock Tests</button>
+    <button class="npb" onclick="window.location.href='6_mba_club_profile.html'">Profile</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-date" id="nav-date"></div>
+    <button class="btn-add-session" onclick="openAddModal()">+ Add Session</button>
+  </div>
+</nav>
+
+<!-- PAGE TABS -->
+<div class="page-tabs">
+  <div class="page-tabs-inner">
+    <button class="pt active" onclick="switchTab('daily',this)">Today</button>
+    <button class="pt" onclick="switchTab('calendar',this)">Calendar</button>
+    <button class="pt" onclick="switchTab('weekly',this)">Weekly View</button>
+    <button class="pt" onclick="switchTab('topics',this)">Topic Checklist</button>
+    <button class="pt" onclick="switchTab('generator',this)">Plan Generator</button>
+  </div>
+</div>
+
+<!-- COUNTDOWN STRIP -->
+<div class="countdown-strip">
+  <div class="cs-inner" id="countdown-strip"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ===== TODAY TAB ===== -->
+  <div id="tab-daily" class="tab-content">
+    <div class="daily-layout">
+      <div>
+        <div class="today-header">
+          <div>
+            <div class="today-date" id="today-title"></div>
+            <div class="today-sub" id="today-sub"></div>
+          </div>
+          <div class="today-nav">
+            <button class="day-nav-btn" onclick="changeDay(-1)">← Prev</button>
+            <button class="today-btn" onclick="goToday()">Today</button>
+            <button class="day-nav-btn" onclick="changeDay(1)">Next →</button>
+          </div>
+        </div>
+
+        <!-- PROGRESS RING -->
+        <div class="progress-ring-card">
+          <div class="ring-wrap">
+            <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+              <circle class="ring-bg" cx="40" cy="40" r="32"/>
+              <circle class="ring-fill" id="ring-fill" cx="40" cy="40" r="32" stroke-dasharray="201" stroke-dashoffset="201"/>
+            </svg>
+            <div class="ring-text"><div class="ring-pct" id="ring-pct">0%</div><div class="ring-done">done</div></div>
+          </div>
+          <div class="ring-stats">
+            <div class="rs-item"><div class="rs-num" id="rs-sessions" style="color:var(--brand)">0</div><div class="rs-label">Sessions</div></div>
+            <div class="rs-item"><div class="rs-num" id="rs-hours" style="color:var(--blue)">0h</div><div class="rs-label">Study Time</div></div>
+            <div class="rs-item"><div class="rs-num" id="rs-qs" style="color:var(--green)">0</div><div class="rs-label">Qs Target</div></div>
+          </div>
+        </div>
+
+        <!-- TIME SCHEDULE -->
+        <div class="schedule-card">
+          <div class="sc-header">
+            <div class="sc-title">Today's Schedule</div>
+            <button class="sc-add-btn" onclick="openAddModal()">+ Add Session</button>
+          </div>
+          <div class="time-slots" id="time-slots"></div>
+        </div>
+      </div>
+
+      <!-- SIDE PANEL -->
+      <div class="side-panel">
+        <!-- DAILY TARGETS -->
+        <div class="sp-card">
+          <div class="sp-title">🎯 Daily Targets</div>
+          <div id="daily-targets"></div>
+        </div>
+        <!-- STREAK -->
+        <div class="sp-card" style="background:var(--dark);border-color:rgba(255,255,255,0.08)">
+          <div class="sp-title" style="color:rgba(255,255,255,0.35)">🔥 Streak</div>
+          <div style="text-align:center;padding:8px 0">
+            <div style="font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--brand);line-height:1">12</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px">day streak</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:6px">Keep going! 18 more days → Inferno 🔥 badge</div>
+          </div>
+          <div style="display:flex;gap:3px;justify-content:center;margin-top:10px" id="mini-streak"></div>
+        </div>
+        <!-- QUICK STATS -->
+        <div class="sp-card">
+          <div class="sp-title">📊 This Week</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--brand)">18h</div><div style="font-size:11px;color:var(--text-3)">Studied</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green)">142</div><div style="font-size:11px;color:var(--text-3)">Qs Solved</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--blue)">5/7</div><div style="font-size:11px;color:var(--text-3)">Days Active</div></div>
+            <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--purple)">3</div><div style="font-size:11px;color:var(--text-3)">Mocks Done</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CALENDAR TAB ===== -->
+  <div id="tab-calendar" class="tab-content" style="display:none">
+    <div class="calendar-layout">
+      <div>
+        <div class="calendar-card">
+          <div class="cal-header">
+            <div class="cal-month" id="cal-month-title"></div>
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+              <button class="cal-nav-btn" onclick="goCalToday()">Today</button>
+              <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-days-header">
+              <div class="cal-day-label">Mon</div><div class="cal-day-label">Tue</div>
+              <div class="cal-day-label">Wed</div><div class="cal-day-label">Thu</div>
+              <div class="cal-day-label">Fri</div><div class="cal-day-label">Sat</div>
+              <div class="cal-day-label">Sun</div>
+            </div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="cal-selected-day">
+          <div class="csd-title" id="cal-selected-title">Select a day</div>
+          <div id="cal-selected-sessions"></div>
+        </div>
+        <div class="sp-card">
+          <div class="sp-title">📅 This Month</div>
+          <div id="monthly-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WEEKLY TAB ===== -->
+  <div id="tab-weekly" class="tab-content" style="display:none">
+    <div class="weekly-card">
+      <div class="wc-header">
+        <div class="wc-title">Weekly Schedule</div>
+        <div class="wc-nav">
+          <button class="wc-nav-btn" onclick="changeWeek(-1)">← Prev week</button>
+          <div class="wc-week" id="wc-week-label"></div>
+          <button class="wc-nav-btn" onclick="changeWeek(1)">Next week →</button>
+        </div>
+      </div>
+      <div id="weekly-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== TOPICS TAB ===== -->
+  <div id="tab-topics" class="tab-content" style="display:none">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px" id="topics-grid"></div>
+  </div>
+
+  <!-- ===== PLAN GENERATOR TAB ===== -->
+  <div id="tab-generator" class="tab-content" style="display:none">
+    <div class="spg-card">
+      <div class="spg-title">🤖 Study Plan Generator</div>
+      <div class="spg-sub">Tell us about yourself and we'll generate a personalised month-by-month study plan for your target exam.</div>
+      <div class="spg-form">
+        <div class="spg-group"><label class="spg-label">Target Exam</label><select class="spg-select" id="spg-exam"><option>CAT 2025</option><option>XAT 2026</option><option>SNAP 2025</option><option>CMAT 2025</option></select></div>
+        <div class="spg-group"><label class="spg-label">Months Available</label><select class="spg-select" id="spg-months"><option value="3">3 months</option><option value="6" selected>6 months</option><option value="9">9 months</option><option value="12">12 months</option></select></div>
+        <div class="spg-group"><label class="spg-label">Hours per Day</label><select class="spg-select" id="spg-hours"><option value="2">2 hours</option><option value="3" selected>3 hours</option><option value="4">4 hours</option><option value="6">6+ hours</option></select></div>
+        <div class="spg-group"><label class="spg-label">Current Level</label><select class="spg-select" id="spg-level"><option>Absolute Beginner</option><option selected>Intermediate</option><option>Advanced</option></select></div>
+        <div class="spg-group"><label class="spg-label">Weak Areas</label><select class="spg-select" id="spg-weak"><option>Quant</option><option>Verbal</option><option selected>LRDI</option><option>All Equal</option></select></div>
+        <div class="spg-group"><label class="spg-label">Background</label><select class="spg-select" id="spg-bg"><option selected>Engineering</option><option>Commerce</option><option>Arts</option><option>Working Pro</option></select></div>
+      </div>
+      <button class="spg-generate-btn" onclick="generatePlan()">Generate My Study Plan →</button>
+      <div id="generated-plan"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD SESSION MODAL -->
+<div id="add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px">
+  <div class="add-modal-card">
+    <div class="amc-header">
+      <div class="amc-title">Add Study Session</div>
+      <button class="amc-close" onclick="closeAddModal()">×</button>
+    </div>
+    <div class="amc-body">
+      <div class="form-row"><label class="form-label">Session Title</label><input class="form-input" id="s-title" placeholder="e.g. CAT Quant — Algebra Practice"></div>
+      <div class="form-row form-row-2">
+        <div><label class="form-label">Subject</label>
+          <select class="form-select" id="s-subject">
+            <option>Quantitative</option><option>Verbal & RC</option><option>LRDI</option>
+            <option>Decision Making</option><option>GK</option><option>Mock Test</option><option>Revision</option>
+          </select>
+        </div>
+        <div><label class="form-label">Exam</label>
+          <select class="form-select" id="s-exam">
+            <option>CAT</option><option>XAT</option><option>SNAP</option><option>CMAT</option><option>General</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row form-row-2">
+        <div><label class="form-label">Start Time</label><input type="time" class="form-input" id="s-start" value="09:00"></div>
+        <div><label class="form-label">End Time</label><input type="time" class="form-input" id="s-end" value="10:30"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Questions Target</label><input type="number" class="form-input" id="s-qs" placeholder="e.g. 30" min="0" max="200"></div>
+      <div class="form-row">
+        <label class="form-label">Color</label>
+        <div class="color-picker" id="color-picker">
+          <div class="cp-btn active" style="background:#FFF3EE;border:1.5px solid #FF4D00" data-bg="#FFF3EE" data-color="#CC3D00" onclick="selectColor(this)"></div>
+          <div class="cp-btn" style="background:#EFF6FF;border:1.5px solid #93C5FD" data-bg="#EFF6FF" data-color="#1D4ED8" onclick="selectColor(this)"></div>
+          <div class="cp-btn" style="background:#F0FDF4;border:1.5px solid #6EE7B7" data-bg="#F0FDF4" data-color="#166534" onclick="selectColor(this)"></div>
+          <div class="cp-btn" style="background:#F5F3FF;border:1.5px solid #C4B5FD" data-bg="#F5F3FF" data-color="#5B21B6" onclick="selectColor(this)"></div>
+          <div class="cp-btn" style="background:#FFFBEB;border:1.5px solid #FCD34D" data-bg="#FFFBEB" data-color="#92400E" onclick="selectColor(this)"></div>
+          <div class="cp-btn" style="background:#FEF2F2;border:1.5px solid #FCA5A5" data-bg="#FEF2F2" data-color="#991B1B" onclick="selectColor(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="amc-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="saveSession()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const NOW = new Date();
+let currentDay = new Date(NOW);
+let calMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+let weekOffset = 0;
+let selectedColor = { bg:'#FFF3EE', color:'#CC3D00' };
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ── SESSIONS DATA ──
+const SESSIONS = [
+  { id:1, title:'CAT Quant — Algebra & Equations', subject:'Quantitative', exam:'CAT', start:'06:30', end:'08:00', qs:40, bg:'#FFF3EE', color:'#CC3D00', done:true,  date:fmtDate(NOW) },
+  { id:2, title:'RC Passages — The Hindu + Economist', subject:'Verbal & RC', exam:'CAT', start:'09:00', end:'10:30', qs:15, bg:'#EFF6FF', color:'#1D4ED8', done:true,  date:fmtDate(NOW) },
+  { id:3, title:'LRDI Practice — Seating Arrangements', subject:'LRDI', exam:'CAT', start:'11:00', end:'12:30', qs:20, bg:'#FFFBEB', color:'#92400E', done:false, date:fmtDate(NOW) },
+  { id:4, title:'CAT Mock Test Analysis #14', subject:'Mock Test', exam:'CAT', start:'15:00', end:'17:00', qs:66, bg:'#F5F3FF', color:'#5B21B6', done:false, date:fmtDate(NOW) },
+  { id:5, title:'GK Current Affairs Revision', subject:'GK', exam:'CMAT', start:'20:00', end:'21:00', qs:30, bg:'#F0FDF4', color:'#166534', done:false, date:fmtDate(NOW) },
+  // Yesterday
+  { id:6, title:'Quant — Time & Work Problems', subject:'Quantitative', exam:'CAT', start:'07:00', end:'08:30', qs:35, bg:'#FFF3EE', color:'#CC3D00', done:true, date:fmtDateOffset(-1) },
+  { id:7, title:'XAT Decision Making Practice', subject:'Decision Making', exam:'XAT', start:'10:00', end:'11:30', qs:20, bg:'#FEF2F2', color:'#991B1B', done:true, date:fmtDateOffset(-1) },
+  { id:8, title:'VARC — Para Jumbles', subject:'Verbal & RC', exam:'CAT', start:'15:00', end:'16:00', qs:18, bg:'#EFF6FF', color:'#1D4ED8', done:true, date:fmtDateOffset(-1) },
+  // Tomorrow
+  { id:9, title:'CAT QA — Number Systems', subject:'Quantitative', exam:'CAT', start:'06:30', end:'08:00', qs:40, bg:'#FFF3EE', color:'#CC3D00', done:false, date:fmtDateOffset(1) },
+  { id:10,title:'SNAP Full Mock #4', subject:'Mock Test', exam:'SNAP', start:'10:00', end:'11:00', qs:60, bg:'#F5F3FF', color:'#5B21B6', done:false, date:fmtDateOffset(1) },
+];
+
+function fmtDate(d) { return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
+function fmtDateOffset(n) { const d = new Date(NOW); d.setDate(d.getDate()+n); return fmtDate(d); }
+
+// ── COUNTDOWN STRIP ──
+function buildCountdown() {
+  const exams = [
+    { name:'CAT 2025', date:'2025-11-30', color:'#FF4D00', bg:'#FFF3EE' },
+    { name:'XAT 2026', date:'2026-01-05', color:'#2563EB', bg:'#EFF6FF' },
+    { name:'SNAP 2025', date:'2025-12-14', color:'#7C3AED', bg:'#F5F3FF' },
+    { name:'CMAT 2025', date:'2025-12-07', color:'#059669', bg:'#ECFDF5' },
+    { name:'MAT 2025',  date:'2025-12-21', color:'#D97706', bg:'#FFFBEB' },
+  ];
+  const total = 365;
+  document.getElementById('countdown-strip').innerHTML = exams.map(e => {
+    const days = Math.max(0, Math.ceil((new Date(e.date) - NOW) / 86400000));
+    const pct = Math.round(Math.max(0, (total - days) / total * 100));
+    return `
+      <div class="cd-item">
+        <span class="cd-exam-tag" style="background:${e.bg};color:${e.color}">${e.name}</span>
+        <div class="cd-info"><div class="cd-days">${days}</div><div class="cd-label">days left</div></div>
+        <div class="cd-bar-wrap">
+          <div class="cd-bar-track"><div class="cd-bar-fill" style="width:${pct}%;background:${e.color}"></div></div>
+          <div class="cd-bar-pct">${pct}% prep time used</div>
+        </div>
+      </div>`;
+  }).join('<div class="strip-divider"></div>');
+}
+
+// ── NAV DATE ──
+document.getElementById('nav-date').textContent = NOW.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+
+// ── DAILY VIEW ──
+function renderDaily() {
+  const dateStr = fmtDate(currentDay);
+  const isToday = dateStr === fmtDate(NOW);
+  const dayName = currentDay.toLocaleDateString('en-IN',{weekday:'long'});
+  const dateLabel = currentDay.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('today-title').textContent = isToday ? `Today — ${dayName}` : dayName;
+  document.getElementById('today-sub').textContent = dateLabel + (isToday ? ' · Study hard today! 💪' : '');
+
+  const daySessions = SESSIONS.filter(s => s.date === dateStr);
+  const doneSessions = daySessions.filter(s => s.done);
+  const totalHours = daySessions.reduce((a,s) => {
+    const [sh,sm] = s.start.split(':').map(Number), [eh,em] = s.end.split(':').map(Number);
+    return a + (eh*60+em - sh*60-sm)/60;
+  }, 0);
+  const totalQs = daySessions.reduce((a,s) => a+s.qs, 0);
+  const pct = daySessions.length ? Math.round(doneSessions.length/daySessions.length*100) : 0;
+  const circ = 201;
+  document.getElementById('ring-pct').textContent = pct+'%';
+  document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct / 100);
+  document.getElementById('rs-sessions').textContent = daySessions.length;
+  document.getElementById('rs-hours').textContent = totalHours.toFixed(1)+'h';
+  document.getElementById('rs-qs').textContent = totalQs;
+
+  // Time slots
+  const slots = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+  document.getElementById('time-slots').innerHTML = slots.map(time => {
+    const slotSessions = daySessions.filter(s => s.start >= time && s.start < nextHour(time));
+    return `<div class="time-slot">
+      <div class="ts-time">${time}</div>
+      <div class="ts-content">
+        ${slotSessions.map(s => `
+          <div class="session-block" style="background:${s.bg};border-left:3px solid ${s.color}" onclick="toggleSession(${s.id})">
+            <div class="sb-dot" style="background:${s.color}"></div>
+            <div class="sb-info">
+              <div class="sb-title" style="color:${s.color};text-decoration:${s.done?'line-through':'none'}">${s.title}</div>
+              <div class="sb-meta" style="color:${s.color}">${s.start}–${s.end} · ${s.exam} · ${s.qs} Qs</div>
+            </div>
+            <div class="sb-duration" style="color:${s.color}">${calcDur(s.start,s.end)}</div>
+            <button class="sb-check" onclick="event.stopPropagation();toggleSession(${s.id})">${s.done?'✅':'⬜'}</button>
+          </div>`).join('')}
+        ${!slotSessions.length ? `<div class="ts-empty" onclick="openAddModal()">+ Add session</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Daily targets
+  const targets = [
+    { id:'t1', title:'Solve 40 Quant questions', meta:'CAT Algebra focus', pts:'+12 pts', done:true },
+    { id:'t2', title:'Complete 3 RC passages', meta:'The Hindu + Aeon', pts:'+9 pts', done:true },
+    { id:'t3', title:'20 LRDI questions', meta:'Seating arrangements', pts:'+6 pts', done:false },
+    { id:'t4', title:'Review yesterday\'s mistakes', meta:'Error log analysis', pts:'+5 pts', done:false },
+    { id:'t5', title:'Read 1 GK article', meta:'Current affairs', pts:'+3 pts', done:false },
+  ];
+  document.getElementById('daily-targets').innerHTML = targets.map(t => `
+    <div class="target-item${t.done?' done':''}" onclick="toggleTarget(this)">
+      <div class="target-check${t.done?' done':''}">${t.done?'✓':''}</div>
+      <div class="target-info">
+        <div class="target-title">${t.title}</div>
+        <div class="target-meta">${t.meta}</div>
+      </div>
+      <div class="target-pts">${t.pts}</div>
+    </div>`).join('');
+
+  // Mini streak
+  const streak = [true,true,true,false,true,true,true,true,true,true,true,true,true,true];
+  document.getElementById('mini-streak').innerHTML = streak.map(a =>
+    `<div style="width:14px;height:14px;border-radius:3px;background:${a?'var(--brand)':'rgba(255,255,255,0.08)'};border:1px solid ${a?'transparent':'rgba(255,255,255,0.05)'}"></div>`
+  ).join('');
+}
+
+function nextHour(t) { const [h,m] = t.split(':'); const nh = (parseInt(h)+1).toString().padStart(2,'0'); return nh+':00'; }
+function calcDur(s,e) {
+  const [sh,sm] = s.split(':').map(Number), [eh,em] = e.split(':').map(Number);
+  const mins = eh*60+em - sh*60-sm;
+  return mins >= 60 ? Math.floor(mins/60)+'h'+(mins%60?' '+(mins%60)+'m':'') : mins+'m';
+}
+function toggleSession(id) {
+  const s = SESSIONS.find(x=>x.id===id);
+  s.done = !s.done;
+  renderDaily();
+  showToast(s.done ? '✅ Session marked complete!' : 'Session unmarked');
+}
+function toggleTarget(el) {
+  el.classList.toggle('done');
+  const check = el.querySelector('.target-check');
+  check.classList.toggle('done');
+  check.textContent = el.classList.contains('done') ? '✓' : '';
+  showToast(el.classList.contains('done') ? '✅ Target complete! +pts' : 'Target unchecked');
+}
+function changeDay(n) { currentDay.setDate(currentDay.getDate()+n); renderDaily(); }
+function goToday() { currentDay = new Date(NOW); renderDaily(); }
+
+// ── CALENDAR ──
+let selectedCalDate = null;
+function buildCalendar() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  document.getElementById('cal-month-title').textContent = MONTHS[m] + ' ' + y;
+  const first = new Date(y,m,1);
+  const startDow = (first.getDay()+6)%7; // Mon=0
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const prevDays = new Date(y,m,0).getDate();
+  let html = '';
+  for (let i=0;i<startDow;i++) {
+    const d = prevDays-startDow+i+1;
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${d}</div></div>`;
+  }
+  for (let d=1;d<=daysInMonth;d++) {
+    const dateStr = y+'-'+(m+1).toString().padStart(2,'0')+'-'+d.toString().padStart(2,'0');
+    const isToday = dateStr === fmtDate(NOW);
+    const isSelected = dateStr === selectedCalDate;
+    const daySessions = SESSIONS.filter(s=>s.date===dateStr);
+    const isStreak = daySessions.some(s=>s.done);
+    html += `<div class="cal-day${isToday?' today':''}${isSelected?' selected':''}${daySessions.length?' has-sessions':''}${isStreak?' streak-day':''}" onclick="selectCalDay('${dateStr}',this)">
+      <div class="cal-day-num">${d}</div>
+      ${daySessions.slice(0,2).map(s=>`<div class="cal-session-dot" style="background:${s.bg};color:${s.color}">${s.title.split(' ').slice(0,3).join(' ')}</div>`).join('')}
+      ${daySessions.length>2?`<div class="cal-more">+${daySessions.length-2} more</div>`:''}
+    </div>`;
+  }
+  const remaining = (7 - (startDow+daysInMonth)%7)%7;
+  for (let i=1;i<=remaining;i++) html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+  document.getElementById('cal-days').innerHTML = html;
+  renderMonthlyStats();
+}
+function selectCalDay(dateStr, el) {
+  selectedCalDate = dateStr;
+  buildCalendar();
+  const d = new Date(dateStr);
+  document.getElementById('cal-selected-title').textContent = d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  const sessions = SESSIONS.filter(s=>s.date===dateStr);
+  document.getElementById('cal-selected-sessions').innerHTML = sessions.length
+    ? sessions.map(s=>`<div class="csd-session" style="border-left-color:${s.color}"><div class="csd-session-title" style="color:${s.color}">${s.title}</div><div class="csd-session-meta">${s.start}–${s.end} · ${s.exam} · ${s.qs} Qs ${s.done?'· ✅ Done':''}</div></div>`).join('')
+    : `<div class="csd-empty">No sessions planned<br><span style="color:var(--brand);cursor:pointer" onclick="openAddModal()">+ Add a session</span></div>`;
+}
+function renderMonthlyStats() {
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const monthSessions = SESSIONS.filter(s => { const d=new Date(s.date); return d.getFullYear()===y&&d.getMonth()===m; });
+  const activeDays = new Set(monthSessions.map(s=>s.date)).size;
+  const totalQs = monthSessions.reduce((a,s)=>a+s.qs,0);
+  const totalH = monthSessions.reduce((a,s)=>{ const [sh,sm]=s.start.split(':').map(Number),[eh,em]=s.end.split(':').map(Number); return a+(eh*60+em-sh*60-sm)/60; },0);
+  document.getElementById('monthly-stats').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--brand)">${activeDays}</div><div style="font-size:11px;color:var(--text-3)">Active Days</div></div>
+      <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--blue)">${totalH.toFixed(0)}h</div><div style="font-size:11px;color:var(--text-3)">Study Time</div></div>
+      <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green)">${totalQs}</div><div style="font-size:11px;color:var(--text-3)">Qs Planned</div></div>
+      <div style="background:var(--bg);border-radius:9px;padding:12px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--purple)">${monthSessions.length}</div><div style="font-size:11px;color:var(--text-3)">Sessions</div></div>
+    </div>`;
+}
+function changeMonth(n) { calMonth.setMonth(calMonth.getMonth()+n); buildCalendar(); }
+function goCalToday() { calMonth = new Date(NOW.getFullYear(),NOW.getMonth(),1); buildCalendar(); }
+
+// ── WEEKLY VIEW ──
+function buildWeekly() {
+  const startOfWeek = new Date(NOW);
+  const dow = (NOW.getDay()+6)%7;
+  startOfWeek.setDate(NOW.getDate() - dow + weekOffset*7);
+  const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate()+6);
+  document.getElementById('wc-week-label').textContent = startOfWeek.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' – '+endOfWeek.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  const times = ['06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00'];
+  const weekDays = Array.from({length:7},(_,i)=>{ const d=new Date(startOfWeek); d.setDate(startOfWeek.getDate()+i); return d; });
+  const isToday = d => fmtDate(d) === fmtDate(NOW);
+  const colors = { 'Quantitative':'#FFF3EE:#CC3D00', 'Verbal & RC':'#EFF6FF:#1D4ED8', 'LRDI':'#FFFBEB:#92400E', 'Mock Test':'#F5F3FF:#5B21B6', 'GK':'#ECFDF5:#166534', 'Decision Making':'#FEF2F2:#991B1B', 'Revision':'#F0FDF4:#166534' };
+  let html = `<div class="weekly-row"><div class="wr-time" style="background:var(--bg)"></div>${weekDays.map(d=>`<div class="wr-header-cell${isToday(d)?' today-col':''}"><div class="wr-day-name">${DAYS[weekDays.indexOf(d)].slice(0,3)}</div><div class="wr-day-num">${d.getDate()}</div></div>`).join('')}</div>`;
+  times.forEach(time => {
+    const endTime = nextHour(nextHour(time));
+    html += `<div class="weekly-row"><div class="wr-time">${time}</div>`;
+    weekDays.forEach(d => {
+      const ds = fmtDate(d);
+      const daySessions = SESSIONS.filter(s=>s.date===ds&&s.start>=time&&s.start<endTime);
+      html += `<div class="wr-cell">${daySessions.map(s=>{ const [bg,col]=(colors[s.subject]||'#F1EFE8:#5F5E5A').split(':'); return `<div class="wc-block" style="background:${bg};color:${col}" title="${s.title}">${s.title.split(' ').slice(0,3).join(' ')}</div>`; }).join('')}</div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('weekly-grid').innerHTML = html;
+}
+function changeWeek(n) { weekOffset+=n; buildWeekly(); }
+
+// ── TOPIC CHECKLIST ──
+const TOPICS = [
+  { subject:'Quantitative Aptitude', color:'#CC3D00', bg:'#FFF3EE', exam:'CAT',
+    topics:[
+      {name:'Arithmetic — Ratios & Percentages',done:true},{name:'Arithmetic — Profit & Loss',done:true},{name:'Arithmetic — Time & Work',done:true},
+      {name:'Arithmetic — Time Speed Distance',done:false},{name:'Algebra — Linear Equations',done:true},{name:'Algebra — Quadratic Equations',done:false},
+      {name:'Geometry — Triangles & Circles',done:false},{name:'Number Systems',done:true},{name:'Permutations & Combinations',done:false},{name:'Probability',done:false},
+    ]},
+  { subject:'Verbal Ability & RC', color:'#1D4ED8', bg:'#EFF6FF', exam:'CAT',
+    topics:[
+      {name:'Reading Comprehension — Science',done:true},{name:'Reading Comprehension — Philosophy',done:false},{name:'Reading Comprehension — Social',done:false},
+      {name:'Para Jumbles',done:true},{name:'Para Summary',done:true},{name:'Sentence Completion',done:false},
+      {name:'Grammar — Subject-Verb Agreement',done:true},{name:'Vocabulary — High Frequency Words',done:false},
+    ]},
+  { subject:'LRDI', color:'#92400E', bg:'#FFFBEB', exam:'CAT',
+    topics:[
+      {name:'Seating Arrangements — Linear',done:true},{name:'Seating Arrangements — Circular',done:false},{name:'Blood Relations',done:true},
+      {name:'Data Tables',done:true},{name:'Bar Graphs & Line Graphs',done:true},{name:'Pie Charts',done:false},
+      {name:'Networks',done:false},{name:'Games & Tournaments',done:false},{name:'Scheduling',done:false},
+    ]},
+  { subject:'Decision Making (XAT)', color:'#991B1B', bg:'#FEF2F2', exam:'XAT',
+    topics:[
+      {name:'Ethical Dilemmas',done:true},{name:'Data Sufficiency',done:true},{name:'Analytical Reasoning Caselets',done:false},
+      {name:'Situational Judgment',done:false},{name:'Business Scenarios',done:false},
+    ]},
+  { subject:'GK & Current Affairs', color:'#166534', bg:'#ECFDF5', exam:'CMAT',
+    topics:[
+      {name:'Union Budget 2024-25',done:true},{name:'Indian Polity & Constitution',done:false},{name:'Indian Economy & Banking',done:false},
+      {name:'International Relations',done:false},{name:'Science & Technology',done:false},{name:'Awards & Recognition',done:true},
+      {name:'Sports — Indian Achievements',done:true},{name:'Geography & Environment',done:false},
+    ]},
+];
+function buildTopics() {
+  document.getElementById('topics-grid').innerHTML = TOPICS.map(group => {
+    const done = group.topics.filter(t=>t.done).length;
+    const total = group.topics.length;
+    const pct = Math.round(done/total*100);
+    return `<div class="sp-card" style="padding:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:700;color:${group.color}">${group.subject}</div>
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:${group.bg};color:${group.color}">${group.exam}</span>
+      </div>
+      <div class="tg-bar"><div class="tg-fill" style="width:${pct}%;background:${group.color}"></div></div>
+      <div style="font-size:11px;color:var(--text-3);margin-bottom:12px">${done}/${total} topics completed · ${pct}%</div>
+      <div>
+        ${group.topics.map((t,i) => `
+          <div class="topic-item${t.done?' done':''}" onclick="toggleTopic(this,'${group.subject}',${i})">
+            <div class="topic-check${t.done?' done':''}">${t.done?'✓':''}</div>
+            <span class="topic-name">${t.name}</span>
+            ${t.done?`<span class="topic-badge" style="background:${group.bg};color:${group.color}">Done</span>`:''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleTopic(el, subject, idx) {
+  const group = TOPICS.find(g=>g.subject===subject);
+  group.topics[idx].done = !group.topics[idx].done;
+  buildTopics();
+  showToast(group.topics[idx].done ? '✅ Topic marked complete!' : 'Topic unmarked');
+}
+
+// ── PLAN GENERATOR ──
+function generatePlan() {
+  const exam = document.getElementById('spg-exam').value;
+  const months = parseInt(document.getElementById('spg-months').value);
+  const hours = parseInt(document.getElementById('spg-hours').value);
+  const level = document.getElementById('spg-level').value;
+  const weak = document.getElementById('spg-weak').value;
+  const totalHours = months * 4 * 7 * hours;
+  const phases = months <= 3
+    ? [{ name:'Foundation + Practice', weeks:months*4, focus:'All topics systematically' }]
+    : months <= 6
+    ? [
+        { name:'Phase 1 — Foundation', weeks:Math.floor(months*4*0.4), focus:'Concept building in all areas' },
+        { name:'Phase 2 — Practice', weeks:Math.floor(months*4*0.35), focus:'Topic-wise question practice' },
+        { name:'Phase 3 — Mock Tests', weeks:Math.floor(months*4*0.25), focus:'Full mocks + analysis' },
+      ]
+    : [
+        { name:'Phase 1 — Foundation', weeks:Math.floor(months*4*0.3), focus:'Deep concept building' },
+        { name:'Phase 2 — Topic Practice', weeks:Math.floor(months*4*0.3), focus:'Section-wise practice' },
+        { name:'Phase 3 — Integration', weeks:Math.floor(months*4*0.2), focus:'Mixed practice + sectionals' },
+        { name:'Phase 4 — Mock Tests', weeks:Math.floor(months*4*0.2), focus:'Full mocks + strategy' },
+      ];
+  const dailySchedule = [
+    { subject:'Quant', hours: weak==='Quant'?1.5:1, color:'#FFF3EE', text:'#CC3D00' },
+    { subject:'Verbal', hours: weak==='Verbal'?1.5:1, color:'#EFF6FF', text:'#1D4ED8' },
+    { subject:'LRDI', hours: weak==='LRDI'?1.5:0.75, color:'#FFFBEB', text:'#92400E' },
+  ];
+  document.getElementById('generated-plan').innerHTML = `
+    <div class="gen-plan">
+      <div class="gp-header">
+        <div class="gp-title">Your ${months}-Month ${exam} Plan</div>
+        <div class="gp-stats">
+          <div class="gp-stat"><div class="gp-stat-num">${totalHours}h</div><div class="gp-stat-lbl">Total Study</div></div>
+          <div class="gp-stat"><div class="gp-stat-num">${hours}h/day</div><div class="gp-stat-lbl">Daily Target</div></div>
+          <div class="gp-stat"><div class="gp-stat-num">${phases.length}</div><div class="gp-stat-lbl">Phases</div></div>
+        </div>
+      </div>
+      ${phases.map((phase,pi) => `
+        <div class="phase-section">
+          <div class="phase-title">${phase.name} (${phase.weeks} weeks)</div>
+          <div class="week-card">
+            <div class="wk-header"><div class="wk-title">${phase.focus}</div><div class="wk-focus">${phase.weeks} weeks · ${phase.weeks*hours*7}h total</div></div>
+            <div class="wk-daily">
+              ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((day,di) => {
+                const isRest = di===6&&hours<=3;
+                const subject = isRest?'Rest':dailySchedule[di%3]?.subject;
+                const extra = di===5?'Mock Test':'';
+                return `<div class="wk-day${isRest?' rest':''}">
+                  <div class="wk-day-name">${day}</div>
+                  <div class="wk-day-content">${isRest?'Rest':(di===5&&pi===phases.length-1)?'Full Mock':subject+'\n'+(extra?extra:'')}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>`).join('')}
+      <div style="margin-top:16px;padding:12px;background:rgba(255,77,0,0.08);border:1px solid rgba(255,77,0,0.2);border-radius:8px;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7">
+        💡 <strong style="color:#FF7A40">Pro tip:</strong> Maintain consistent study sessions rather than marathon sessions. Review error logs weekly. Take 1 full mock every weekend in Phase 3/4. Focus extra 30 mins daily on <strong style="color:#FF7A40">${weak}</strong> — your identified weak area.
+      </div>
+    </div>`;
+}
+
+// ── ADD MODAL ──
+function openAddModal() { document.getElementById('add-modal').style.display='flex'; }
+function closeAddModal() { document.getElementById('add-modal').style.display='none'; }
+function selectColor(btn) {
+  document.querySelectorAll('.cp-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedColor = { bg:btn.dataset.bg, color:btn.dataset.color };
+}
+function saveSession() {
+  const title = document.getElementById('s-title').value.trim();
+  if (!title) { showToast('Please enter a session title'); return; }
+  const newSession = {
+    id: Date.now(), title,
+    subject: document.getElementById('s-subject').value,
+    exam: document.getElementById('s-exam').value,
+    start: document.getElementById('s-start').value,
+    end: document.getElementById('s-end').value,
+    qs: parseInt(document.getElementById('s-qs').value)||0,
+    bg: selectedColor.bg, color: selectedColor.color,
+    done: false, date: fmtDate(currentDay)
+  };
+  SESSIONS.push(newSession);
+  closeAddModal();
+  renderDaily();
+  showToast('✅ Session added!');
+}
+
+// ── TAB SWITCHING ──
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');
+  document.querySelectorAll('.pt').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).style.display='block';
+  if(el) el.classList.add('active');
+  if(id==='calendar') buildCalendar();
+  if(id==='weekly') buildWeekly();
+  if(id==='topics') buildTopics();
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── INIT ──
+buildCountdown();
+renderDaily();
+</script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBA Club — My Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --brand:#FF4D00;--brand-dark:#CC3D00;--brand-light:#FFF3EE;
+  --dark:#0F172A;--dark-2:#1E293B;
+  --text:#1a1a2e;--text-2:#64748b;--text-3:#94a3b8;
+  --bg:#F2F0EB;--card:#ffffff;--border:#E5E1DA;--border-2:#d0cbc2;
+  --green:#059669;--green-bg:#ECFDF5;
+  --red:#DC2626;--red-bg:#FEF2F2;
+  --yellow:#D97706;--yellow-bg:#FFFBEB;
+  --blue:#2563EB;--blue-bg:#EFF6FF;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --teal:#0891B2;--teal-bg:#ECFEFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
+
+/* NAV */
+.nav{background:var(--dark);height:56px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;flex-shrink:0}
+.logo span{color:var(--brand)}
+.nav-pill{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 5px;display:flex;gap:2px}
+.npb{background:none;border:none;color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;padding:5px 13px;border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.npb:hover{color:rgba(255,255,255,0.8)}
+.npb.active{background:var(--brand);color:#fff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.streak-badge{display:flex;align-items:center;gap:5px;background:rgba(255,77,0,0.12);border:1px solid rgba(255,77,0,0.25);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700;color:#FF7A40}
+
+/* PROFILE HERO */
+.profile-hero{background:var(--dark);padding:28px 24px 0;position:relative;overflow:hidden}
+.profile-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(255,77,0,0.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(37,99,235,0.06) 0%,transparent 60%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative}
+.hero-top{display:flex;align-items:flex-start;gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.avatar-wrap{position:relative;flex-shrink:0}
+.avatar{width:80px;height:80px;border-radius:20px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:#fff;flex-shrink:0}
+.avatar-ring{position:absolute;inset:-3px;border-radius:23px;border:2px solid rgba(255,77,0,0.4)}
+.edit-avatar{position:absolute;bottom:-4px;right:-4px;background:var(--dark-2);border:2px solid var(--dark);color:rgba(255,255,255,0.6);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer}
+.hero-info{flex:1;min-width:200px}
+.hero-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:4px}
+.hero-tagline{font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:10px}
+.hero-tags{display:flex;gap:6px;flex-wrap:wrap}
+.hero-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55)}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.hs-item{text-align:center}
+.hs-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;line-height:1}
+.hs-label{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px}
+.profile-tabs{display:flex;gap:0;margin-top:4px;overflow-x:auto;scrollbar-width:none}
+.profile-tabs::-webkit-scrollbar{display:none}
+.ptab{background:none;border:none;color:rgba(255,255,255,0.4);font-size:14px;font-weight:500;padding:12px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.ptab:hover{color:rgba(255,255,255,0.75)}
+.ptab.active{color:#fff;border-bottom-color:var(--brand)}
+
+/* MAIN CONTENT */
+.main{max-width:1200px;margin:0 auto;padding:24px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* GRID LAYOUTS */
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid-main-side{display:grid;grid-template-columns:1fr 320px;gap:16px}
+@media(max-width:900px){.grid-3{grid-template-columns:1fr 1fr}.grid-main-side{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid-3,.grid-2{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card-title-left{display:flex;align-items:center;gap:8px}
+.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.card-action{font-size:12px;font-weight:500;color:var(--brand);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif}
+
+/* STAT CARDS */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px}
+.stat-icon-wrap{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.stat-label{font-size:12px;color:var(--text-3);margin-top:2px}
+.stat-delta{font-size:11px;font-weight:600;margin-top:3px}
+.delta-up{color:var(--green)}
+.delta-down{color:var(--red)}
+
+/* STREAK GRID */
+.streak-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px}
+.streak-cell{aspect-ratio:1;border-radius:3px;border:1px solid var(--border);background:var(--bg);transition:all 0.15s;cursor:default;position:relative}
+.streak-cell:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none}
+.sc-0{background:var(--bg)}
+.sc-1{background:#FED7C3;border-color:#FDBA98}
+.sc-2{background:#FBA982;border-color:#F87844}
+.sc-3{background:#F95F1A;border-color:#E54D0A}
+.sc-4{background:#CC3D00;border-color:#A83200}
+.streak-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.streak-day{font-size:9px;color:var(--text-3);text-align:center}
+.streak-legend{display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end}
+.sl-label{font-size:11px;color:var(--text-3)}
+.sl-cells{display:flex;gap:3px}
+.sl-cell{width:12px;height:12px;border-radius:2px;border:1px solid var(--border)}
+
+/* SUBJECT PROGRESS */
+.subject-row{margin-bottom:14px}
+.subject-row:last-child{margin-bottom:0}
+.sr-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sr-name{font-size:13px;font-weight:600}
+.sr-stats{display:flex;gap:10px;align-items:center}
+.sr-pct{font-size:13px;font-weight:700}
+.sr-solved{font-size:11px;color:var(--text-3)}
+.progress-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.sr-topics{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.sr-topic{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;border:1px solid var(--border);color:var(--text-3)}
+.sr-topic.strong{background:var(--green-bg);border-color:#6EE7B7;color:var(--green)}
+.sr-topic.weak{background:var(--red-bg);border-color:#FCA5A5;color:var(--red)}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:500px){.badges-grid{grid-template-columns:repeat(3,1fr)}}
+.badge-item{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;transition:all 0.2s;cursor:default;position:relative}
+.badge-item:hover{transform:translateY(-2px);border-color:var(--border-2);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.badge-item.locked{opacity:0.45;filter:grayscale(0.8)}
+.badge-item.new::after{content:'NEW';position:absolute;top:6px;right:6px;background:var(--brand);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px}
+.badge-icon{font-size:28px;margin-bottom:6px;display:block}
+.badge-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
+.badge-desc{font-size:10px;color:var(--text-3);margin-top:2px;line-height:1.4}
+
+/* ACTIVITY FEED */
+.activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.act-body{flex:1;min-width:0}
+.act-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4}
+.act-meta{font-size:11px;color:var(--text-3);margin-top:2px;display:flex;gap:8px}
+.act-score{font-size:12px;font-weight:700;color:var(--brand);flex-shrink:0;align-self:center}
+
+/* TARGET COLLEGES */
+.college-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.college-row:last-child{border-bottom:none}
+.college-logo{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;font-family:'Syne',sans-serif}
+.college-info{flex:1;min-width:0}
+.college-name{font-size:13px;font-weight:600;color:var(--text)}
+.college-detail{font-size:11px;color:var(--text-3);margin-top:1px}
+.college-cutoff{font-size:12px;font-weight:600;text-align:right}
+.college-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:3px}
+.cs-reach{background:var(--red-bg);color:var(--red)}
+.cs-target{background:var(--yellow-bg);color:var(--yellow)}
+.cs-safe{background:var(--green-bg);color:var(--green)}
+.add-college-btn{width:100%;background:none;border:1px dashed var(--border-2);color:var(--text-3);font-size:13px;padding:10px;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;margin-top:10px}
+.add-college-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+
+/* MOCK TEST HISTORY */
+.mock-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.mock-row:last-child{border-bottom:none}
+.mock-exam-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.mock-info{flex:1;min-width:0}
+.mock-name{font-size:13px;font-weight:500;color:var(--text)}
+.mock-date{font-size:11px;color:var(--text-3)}
+.mock-scores{text-align:right;flex-shrink:0}
+.mock-score-num{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.mock-percentile{font-size:11px;color:var(--text-3)}
+
+/* SETTINGS TAB */
+.settings-section{margin-bottom:28px}
+.settings-section-title{font-size:13px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;font-weight:500;color:var(--text)}
+.settings-sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border-2);border-radius:12px;transition:all 0.2s}
+.toggle-slider::before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:all 0.2s}
+.toggle input:checked + .toggle-slider{background:var(--brand)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px)}
+.settings-input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;min-width:200px}
+.settings-input:focus{border-color:var(--brand)}
+.settings-select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;cursor:pointer}
+.danger-zone{background:var(--red-bg);border:1px solid #FCA5A5;border-radius:10px;padding:14px 16px}
+.dz-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px}
+.dz-sub{font-size:12px;color:var(--text-2);margin-bottom:10px}
+.dz-btn{background:var(--red);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.save-btn{background:var(--brand);color:#fff;border:none;border-radius:9px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s}
+.save-btn:hover{background:var(--brand-dark)}
+
+/* SCORE TREND MINI */
+.mini-chart-wrap{position:relative;height:180px;margin-top:4px}
+
+/* RANK CARD */
+.rank-card{background:var(--dark);border-radius:12px;padding:16px;color:#fff;text-align:center}
+.rank-num{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--brand);line-height:1}
+.rank-label{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.rank-change{font-size:12px;font-weight:600;color:#6EE7B7;margin-top:6px}
+.rank-bar{background:rgba(255,255,255,0.08);border-radius:4px;height:6px;margin-top:10px;overflow:hidden}
+.rank-fill{height:100%;background:var(--brand);border-radius:4px;width:82%}
+
+/* EXAM COUNTDOWN */
+.countdown-card{background:var(--dark);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.cd-exam{font-size:13px;font-weight:600;color:#fff}
+.cd-date{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.cd-days{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--brand)}
+.cd-days-label{font-size:10px;color:rgba(255,255,255,0.35)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--dark);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.3s;border-left:3px solid var(--green)}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* EDITABLE */
+.editable-field{border:none;background:transparent;font-family:'DM Sans',sans-serif;color:rgba(255,255,255,0.8);font-size:14px;outline:none;border-bottom:1px solid transparent;transition:border-color 0.15s;min-width:80px}
+.editable-field:focus{border-bottom-color:rgba(255,77,0,0.5)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo" onclick="window.location.href='1_mba_club_landing.html'" style="cursor:pointer">MBA<span>Club</span></div>
+  <div class="nav-pill">
+    <button class="npb" onclick="window.location.href='2_mba_club_forum.html'">Forum</button>
+    <button class="npb" onclick="window.location.href='3_mba_club_questionbank.html'">Questions</button>
+    <button class="npb" onclick="window.location.href='4_mba_club_ai_tutor.html'">AI Tutor</button>
+    <button class="npb" onclick="window.location.href='5_mba_club_mocktest.html'">Mock Tests</button>
+    <button class="npb active">Profile</button>
+  </div>
+  <div class="nav-right">
+    <div class="streak-badge">🔥 <span id="streak-num">12</span>-day streak</div>
+  </div>
+</nav>
+
+<!-- PROFILE HERO -->
+<div class="profile-hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatar-initials">RS</div>
+        <div class="avatar-ring"></div>
+        <div class="edit-avatar" onclick="showToast('Photo upload coming soon!')">✏️</div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-name" id="hero-name">Rahul Sharma</div>
+        <div class="hero-tagline">🎯 Targeting IIM A/B/C · CAT 2025 Aspirant · Jaipur, Rajasthan</div>
+        <div class="hero-tags">
+          <span class="hero-tag">🔥 CAT 2025</span>
+          <span class="hero-tag">📚 Full-time Prep</span>
+          <span class="hero-tag">💼 Engineering Background</span>
+          <span class="hero-tag">⭐ Member since Jan 2025</span>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hs-item"><div class="hs-num" id="hs-kudos">1,840</div><div class="hs-label">Kudos</div></div>
+        <div class="hs-item"><div class="hs-num" id="hs-solved">487</div><div class="hs-label">Solved</div></div>
+        <div class="hs-item"><div class="hs-num" id="hs-rank">#184</div><div class="hs-label">Rank</div></div>
+        <div class="hs-item"><div class="hs-num" id="hs-mocks">14</div><div class="hs-label">Mocks</div></div>
+      </div>
+    </div>
+    <div class="profile-tabs">
+      <button class="ptab active" onclick="switchTab('overview',this)">Overview</button>
+      <button class="ptab" onclick="switchTab('progress',this)">Progress</button>
+      <button class="ptab" onclick="switchTab('mocks',this)">Mock Tests</button>
+      <button class="ptab" onclick="switchTab('badges',this)">Badges</button>
+      <button class="ptab" onclick="switchTab('colleges',this)">B-Schools</button>
+      <button class="ptab" onclick="switchTab('activity',this)">Activity</button>
+      <button class="ptab" onclick="switchTab('settings',this)">Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="grid-4" style="margin-bottom:16px">
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#FFF3EE">📊</div>
+        <div><div class="stat-num" style="color:var(--brand)">73%</div><div class="stat-label">Overall Accuracy</div><div class="stat-delta delta-up">↑ 4% this week</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:var(--green-bg)">🎯</div>
+        <div><div class="stat-num" style="color:var(--green)">487</div><div class="stat-label">Questions Solved</div><div class="stat-delta delta-up">↑ 42 this week</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:var(--blue-bg)">⏱️</div>
+        <div><div class="stat-num" style="color:var(--blue)">94h</div><div class="stat-label">Study Time</div><div class="stat-delta delta-up">↑ 8h this week</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:var(--yellow-bg)">🏆</div>
+        <div><div class="stat-num" style="color:var(--yellow)">#184</div><div class="stat-label">Global Rank</div><div class="stat-delta delta-up">↑ 63 positions</div></div>
+      </div>
+    </div>
+
+    <div class="grid-main-side">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- STREAK -->
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-left"><div class="card-icon" style="background:#FFF3EE">🔥</div>Activity Streak</div>
+            <span style="font-size:13px;color:var(--brand);font-weight:700">12 days 🔥</span>
+          </div>
+          <div class="streak-grid" id="streak-grid"></div>
+          <div class="streak-labels">
+            <div class="streak-day">M</div><div class="streak-day">T</div><div class="streak-day">W</div>
+            <div class="streak-day">T</div><div class="streak-day">F</div><div class="streak-day">S</div><div class="streak-day">S</div>
+          </div>
+          <div class="streak-legend">
+            <span class="sl-label">Less</span>
+            <div class="sl-cells">
+              <div class="sl-cell sc-0"></div><div class="sl-cell sc-1"></div>
+              <div class="sl-cell sc-2"></div><div class="sl-cell sc-3"></div><div class="sl-cell sc-4"></div>
+            </div>
+            <span class="sl-label">More</span>
+          </div>
+        </div>
+
+        <!-- SCORE TREND -->
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-left"><div class="card-icon" style="background:var(--blue-bg)">📈</div>Mock Score Trend</div>
+            <button class="card-action">View all</button>
+          </div>
+          <div class="mini-chart-wrap"><canvas id="scoreTrendChart"></canvas></div>
+        </div>
+
+        <!-- SUBJECT ACCURACY -->
+        <div class="card">
+          <div class="card-title">
+            <div class="card-title-left"><div class="card-icon" style="background:var(--purple-bg)">🎯</div>Subject-wise Accuracy</div>
+          </div>
+          <div class="mini-chart-wrap" style="height:200px"><canvas id="radarChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- RANK -->
+        <div class="rank-card">
+          <div class="rank-num">#184</div>
+          <div class="rank-label">Your Global Rank</div>
+          <div class="rank-change">↑ Rose 63 ranks this week</div>
+          <div class="rank-bar"><div class="rank-fill"></div></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px">Top 0.4% of 50,241 members</div>
+        </div>
+
+        <!-- EXAM COUNTDOWN -->
+        <div class="card" style="padding:14px">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-title-left"><div class="card-icon" style="background:#FFF3EE">⏳</div>Exam Countdown</div>
+          </div>
+          <div class="countdown-card">
+            <div><div class="cd-exam">CAT 2025</div><div class="cd-date">Nov 30, 2025</div></div>
+            <div style="text-align:right"><div class="cd-days" id="cat-days">—</div><div class="cd-days-label">days left</div></div>
+          </div>
+          <div class="countdown-card">
+            <div><div class="cd-exam">XAT 2026</div><div class="cd-date">Jan 5, 2026</div></div>
+            <div style="text-align:right"><div class="cd-days" id="xat-days">—</div><div class="cd-days-label">days left</div></div>
+          </div>
+          <div class="countdown-card">
+            <div><div class="cd-exam">SNAP 2025</div><div class="cd-date">Dec 14, 2025</div></div>
+            <div style="text-align:right"><div class="cd-days" id="snap-days">—</div><div class="cd-days-label">days left</div></div>
+          </div>
+        </div>
+
+        <!-- RECENT ACTIVITY MINI -->
+        <div class="card" style="padding:14px">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-title-left"><div class="card-icon" style="background:var(--green-bg)">⚡</div>Recent Activity</div>
+            <button class="card-action" onclick="switchTab('activity',document.querySelectorAll('.ptab')[5])">All</button>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon" style="background:#FFF3EE">📝</div>
+            <div class="act-body"><div class="act-title">CAT Mock #14 completed</div><div class="act-meta"><span>Today, 10:30am</span></div></div>
+            <div class="act-score">142/198</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon" style="background:var(--green-bg)">✅</div>
+            <div class="act-body"><div class="act-title">Solved 18 Quant questions</div><div class="act-meta"><span>Yesterday</span><span>83% accuracy</span></div></div>
+            <div class="act-score">+54 pts</div>
+          </div>
+          <div class="activity-item">
+            <div class="act-icon" style="background:var(--purple-bg)">💬</div>
+            <div class="act-body"><div class="act-title">Posted in CAT Forum</div><div class="act-meta"><span>2 days ago</span><span>12 kudos</span></div></div>
+            <div class="act-score">+12 🏅</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS TAB -->
+  <div class="tab-content" id="tab-progress">
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--green-bg)">📚</div>Subject Progress</div></div>
+        <div id="subject-progress-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--blue-bg)">📊</div>Topic Mastery</div></div>
+        <div class="mini-chart-wrap" style="height:260px"><canvas id="topicChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:#FFF3EE">📅</div>Weekly Questions Solved</div></div>
+      <div class="mini-chart-wrap" style="height:180px"><canvas id="weeklyChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- MOCK TESTS TAB -->
+  <div class="tab-content" id="tab-mocks">
+    <div class="grid-4" style="margin-bottom:16px">
+      <div class="stat-card"><div class="stat-icon-wrap" style="background:#FFF3EE">📝</div><div><div class="stat-num" style="color:var(--brand)">14</div><div class="stat-label">Mocks Taken</div></div></div>
+      <div class="stat-card"><div class="stat-icon-wrap" style="background:var(--green-bg)">📈</div><div><div class="stat-num" style="color:var(--green)">142</div><div class="stat-label">Best Score</div><div class="stat-delta" style="color:var(--text-3)">out of 198</div></div></div>
+      <div class="stat-card"><div class="stat-icon-wrap" style="background:var(--blue-bg)">🎯</div><div><div class="stat-num" style="color:var(--blue)">94%ile</div><div class="stat-label">Best Percentile</div></div></div>
+      <div class="stat-card"><div class="stat-icon-wrap" style="background:var(--purple-bg)">📊</div><div><div class="stat-num" style="color:var(--purple)">74%</div><div class="stat-label">Avg Accuracy</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:#FFF3EE">📝</div>Mock Test History</div></div>
+      <div id="mock-history-list"></div>
+    </div>
+  </div>
+
+  <!-- BADGES TAB -->
+  <div class="tab-content" id="tab-badges">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--yellow-bg)">🏆</div>Earned Badges</div><span style="font-size:13px;color:var(--text-3)">12 / 38 earned</span></div>
+      <div class="badges-grid" id="badges-earned"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--bg)">🔒</div>Locked Badges</div></div>
+      <div class="badges-grid" id="badges-locked"></div>
+    </div>
+  </div>
+
+  <!-- B-SCHOOLS TAB -->
+  <div class="tab-content" id="tab-colleges">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:#FFF3EE">🏛️</div>Target B-Schools</div><button class="card-action" onclick="showToast('Edit mode coming soon!')">Edit</button></div>
+        <div id="college-list"></div>
+        <button class="add-college-btn" onclick="showToast('College search coming soon!')">+ Add a college</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--green-bg)">📊</div>Readiness Snapshot</div></div>
+        <div class="mini-chart-wrap" style="height:220px"><canvas id="readinessChart"></canvas></div>
+        <div style="margin-top:12px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Your CAT estimated percentile range</div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--red)">91</div><div style="font-size:11px;color:var(--text-3)">Low estimate</div></div>
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--brand)">95</div><div style="font-size:11px;color:var(--text-3)">Current pace</div></div>
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green)">98</div><div style="font-size:11px;color:var(--text-3)">High estimate</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TAB -->
+  <div class="tab-content" id="tab-activity">
+    <div class="card">
+      <div class="card-title"><div class="card-title-left"><div class="card-icon" style="background:var(--green-bg)">⚡</div>Activity Feed</div></div>
+      <div id="full-activity-feed"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-content" id="tab-settings">
+    <div class="grid-2">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="settings-section-title">Profile Information</div>
+          <div class="settings-section">
+            <div class="settings-row">
+              <div><div class="settings-label">Full Name</div></div>
+              <input class="settings-input" id="s-name" value="Rahul Sharma">
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Email</div></div>
+              <input class="settings-input" id="s-email" value="rahul.sharma@gmail.com">
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">City</div></div>
+              <input class="settings-input" id="s-city" value="Jaipur, Rajasthan">
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Target Exam Year</div></div>
+              <select class="settings-select">
+                <option selected>CAT 2025</option>
+                <option>CAT 2026</option>
+                <option>XAT 2026</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Background</div></div>
+              <select class="settings-select">
+                <option selected>Engineering</option>
+                <option>Commerce</option>
+                <option>Arts / Humanities</option>
+                <option>Science</option>
+                <option>Working Professional</option>
+              </select>
+            </div>
+            <div style="margin-top:16px">
+              <button class="save-btn" onclick="saveSettings()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="settings-section-title">Danger Zone</div>
+          <div class="danger-zone">
+            <div class="dz-title">Delete Account</div>
+            <div class="dz-sub">This will permanently delete all your data, progress, and history. This action cannot be undone.</div>
+            <button class="dz-btn" onclick="showToast('Please contact support to delete your account.')">Delete My Account</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="settings-section-title">Notifications</div>
+          <div class="settings-section">
+            <div class="settings-row">
+              <div><div class="settings-label">Daily practice reminder</div><div class="settings-sub">Get reminded to maintain your streak</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">New mock tests available</div><div class="settings-sub">Notified when new mocks are published</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Forum replies</div><div class="settings-sub">When someone replies to your posts</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Weekly performance report</div><div class="settings-sub">Summary of your weekly progress</div></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Exam date reminders</div><div class="settings-sub">Alerts 30, 7, and 1 day before exams</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="settings-section-title">Privacy</div>
+          <div class="settings-section">
+            <div class="settings-row">
+              <div><div class="settings-label">Show profile on leaderboard</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Show activity to other members</div></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Allow AI to personalise suggestions</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TABS ──
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'progress') initProgressCharts();
+  if (id === 'mocks') renderMocks();
+  if (id === 'badges') renderBadges();
+  if (id === 'colleges') initColleges();
+  if (id === 'activity') renderActivity();
+}
+
+// ── COUNTDOWN ──
+function calcDays(dateStr) {
+  const diff = new Date(dateStr) - new Date();
+  return Math.max(0, Math.ceil(diff / 86400000));
+}
+document.getElementById('cat-days').textContent = calcDays('2025-11-30');
+document.getElementById('xat-days').textContent = calcDays('2026-01-05');
+document.getElementById('snap-days').textContent = calcDays('2025-12-14');
+
+// ── STREAK GRID ──
+(function buildStreak() {
+  const grid = document.getElementById('streak-grid');
+  const data = [0,1,0,2,3,2,1,3,2,4,3,3,2,4,3,2,1,3,4,3,2,3,4,3,4,3,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  data.slice(-84).forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = `streak-cell sc-${v}`;
+    const weekOffset = Math.floor(i / 7);
+    const dayName = days[i % 7];
+    cell.title = `${dayName}, ${weekOffset} weeks ago: ${v > 0 ? v * 8 + ' questions' : 'No activity'}`;
+    grid.appendChild(cell);
+  });
+})();
+
+// ── OVERVIEW CHARTS ──
+(function initOverviewCharts() {
+  const scoreCtx = document.getElementById('scoreTrendChart').getContext('2d');
+  new Chart(scoreCtx, {
+    type: 'line',
+    data: {
+      labels: ['Mock 1','Mock 2','Mock 3','Mock 4','Mock 5','Mock 6','Mock 7','Mock 8','Mock 9','Mock 10','Mock 11','Mock 12','Mock 13','Mock 14'],
+      datasets: [{
+        label: 'Score', data: [68,72,75,71,78,80,77,83,85,88,87,91,90,142],
+        borderColor: '#FF4D00', backgroundColor: 'rgba(255,77,0,0.06)',
+        borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#FF4D00',
+        fill: true, tension: 0.4
+      },{
+        label: 'Percentile', data: [72,76,79,74,82,84,81,87,89,91,90,94,93,94],
+        borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.04)',
+        borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#2563EB',
+        fill: false, tension: 0.4, yAxisID: 'y1'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 12, padding: 12 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#94a3b8' } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#94a3b8' }, title: { display: true, text: 'Score', font: { size: 10 }, color: '#94a3b8' } },
+        y1: { position: 'right', grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#2563EB' }, title: { display: true, text: 'Percentile', font: { size: 10 }, color: '#2563EB' } }
+      }
+    }
+  });
+
+  const radarCtx = document.getElementById('radarChart').getContext('2d');
+  new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: ['Quant', 'VARC', 'LRDI', 'Decision Making', 'GK', 'Speed'],
+      datasets: [{
+        label: 'Your Accuracy', data: [78, 65, 58, 80, 52, 70],
+        borderColor: '#FF4D00', backgroundColor: 'rgba(255,77,0,0.1)',
+        borderWidth: 2, pointBackgroundColor: '#FF4D00', pointRadius: 4
+      },{
+        label: 'CAT Topper Avg', data: [92, 88, 85, 88, 78, 90],
+        borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.05)',
+        borderWidth: 1.5, pointBackgroundColor: '#2563EB', pointRadius: 3, borderDash: [4,3]
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 11 }, boxWidth: 12 } } },
+      scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, font: { size: 9 }, color: '#94a3b8', backdropColor: 'transparent' }, grid: { color: 'rgba(0,0,0,0.06)' }, pointLabels: { font: { family: 'DM Sans', size: 11 }, color: '#64748b' } } }
+    }
+  });
+})();
+
+// ── PROGRESS CHARTS ──
+let progressChartsBuilt = false;
+function initProgressCharts() {
+  if (progressChartsBuilt) return;
+  progressChartsBuilt = true;
+
+  // Subject progress bars
+  const subjects = [
+    { name: 'Quantitative Aptitude', pct: 78, solved: 142, color: '#059669', strong: ['Arithmetic','Algebra'], weak: ['Geometry'] },
+    { name: 'Verbal Ability & RC', pct: 65, solved: 118, color: '#7C3AED', strong: ['Fill in Blanks'], weak: ['RC','Para-jumbles'] },
+    { name: 'LRDI', pct: 58, solved: 96, color: '#D97706', strong: ['Tables','Bar Graphs'], weak: ['Networks','Games'] },
+    { name: 'Decision Making', pct: 82, solved: 88, color: '#2563EB', strong: ['Ethical Dilemmas','DS'], weak: [] },
+    { name: 'General Knowledge', pct: 51, solved: 43, color: '#0891B2', strong: ['Polity'], weak: ['Economy','Science'] },
+  ];
+  document.getElementById('subject-progress-list').innerHTML = subjects.map(s => `
+    <div class="subject-row">
+      <div class="sr-header">
+        <span class="sr-name">${s.name}</span>
+        <div class="sr-stats"><span class="sr-pct" style="color:${s.color}">${s.pct}%</span><span class="sr-solved">${s.solved} solved</span></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
+      <div class="sr-topics">
+        ${s.strong.map(t=>`<span class="sr-topic strong">${t}</span>`).join('')}
+        ${s.weak.map(t=>`<span class="sr-topic weak">⚠ ${t}</span>`).join('')}
+      </div>
+    </div>`).join('');
+
+  const topicCtx = document.getElementById('topicChart').getContext('2d');
+  new Chart(topicCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Arithmetic','Algebra','Geometry','Number Sys','Modern Math','RC','Vocab','Grammar','PJ','Seating','Networks','Tables'],
+      datasets: [{
+        label: 'Accuracy %',
+        data: [84,79,61,72,68,58,71,78,52,64,49,72],
+        backgroundColor: [84,79,61,72,68,58,71,78,52,64,49,72].map(v => v>=70?'rgba(5,150,105,0.7)':v>=55?'rgba(217,119,6,0.7)':'rgba(220,38,38,0.7)'),
+        borderRadius: 5, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { min: 0, max: 100, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#94a3b8' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { ticks: { font: { family: 'DM Sans', size: 10 }, color: '#64748b' }, grid: { display: false } }
+      }
+    }
+  });
+
+  const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+  new Chart(weeklyCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6','Week 7','Week 8','Week 9','Week 10','Week 11','Week 12'],
+      datasets: [{
+        label: 'Questions Solved',
+        data: [28,35,42,38,51,48,55,62,58,67,72,78],
+        backgroundColor: 'rgba(255,77,0,0.15)', borderColor: '#FF4D00',
+        borderWidth: 2, borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 10 }, color: '#94a3b8' } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+// ── MOCK HISTORY ──
+function renderMocks() {
+  const mocks = [
+    { exam:'CAT', name:'CAT 2025 Mock #14', date:'Today',       score:142, max:198, pct:94, delta:'+1' },
+    { exam:'CAT', name:'CAT 2025 Mock #13', date:'3 days ago',  score:136, max:198, pct:93, delta:'+3' },
+    { exam:'CAT', name:'CAT 2025 Mock #12', date:'1 week ago',  score:128, max:198, pct:90, delta:'+2' },
+    { exam:'XAT', name:'XAT 2026 Mock #2',  date:'10 days ago', score:94,  max:120, pct:88, delta:'+5' },
+    { exam:'CAT', name:'CAT 2025 Mock #11', date:'2 weeks ago', score:122, max:198, pct:87, delta:'-1' },
+    { exam:'SNAP',name:'SNAP 2025 Mock #3', date:'2 weeks ago', score:88,  max:100, pct:92, delta:'+4' },
+    { exam:'CAT', name:'CAT 2025 Mock #10', date:'3 weeks ago', score:118, max:198, pct:86, delta:'+3' },
+    { exam:'CAT', name:'CAT 2025 Mock #9',  date:'3 weeks ago', score:112, max:198, pct:83, delta:'+2' },
+  ];
+  const tagColors = { CAT:'tag-cat-c', XAT:'tag-xat-c', SNAP:'tag-snap-c', CMAT:'tag-cmat-c' };
+  const examTagStyles = { CAT:'background:#FFF3EE;color:#CC3D00', XAT:'background:#EFF6FF;color:#1D4ED8', SNAP:'background:#F5F3FF;color:#5B21B6', CMAT:'background:#F0FDF4;color:#166534' };
+  document.getElementById('mock-history-list').innerHTML = mocks.map(m => {
+    const deltaColor = m.delta.startsWith('+') ? 'var(--green)' : 'var(--red)';
+    return `<div class="mock-row">
+      <span class="mock-exam-tag" style="${examTagStyles[m.exam]}">${m.exam}</span>
+      <div class="mock-info"><div class="mock-name">${m.name}</div><div class="mock-date">${m.date}</div></div>
+      <div class="mock-scores">
+        <div class="mock-score-num" style="color:var(--brand)">${m.score}<span style="font-size:12px;font-weight:400;color:var(--text-3)">/${m.max}</span></div>
+        <div class="mock-percentile">${m.pct}th %ile <span style="color:${deltaColor};font-weight:600">${m.delta}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── BADGES ──
+function renderBadges() {
+  const earned = [
+    { icon:'🎯', name:'First 100', desc:'Solved 100 questions', new:false },
+    { icon:'🔥', name:'Week Warrior', desc:'7-day streak achieved', new:false },
+    { icon:'⚡', name:'Speed Demon', desc:'Avg 60s per question', new:true },
+    { icon:'🧮', name:'Quant King', desc:'80%+ Quant accuracy', new:true },
+    { icon:'📖', name:'RC Master', desc:'Completed 50 RC passages', new:false },
+    { icon:'🏆', name:'Top 1%', desc:'Reached top 500 rank', new:false },
+    { icon:'💬', name:'Community Star', desc:'50+ forum posts', new:false },
+    { icon:'📝', name:'Mock Warrior', desc:'Completed 10 mocks', new:false },
+    { icon:'🌟', name:'Kudos King', desc:'Received 1000 kudos', new:false },
+    { icon:'🎓', name:'Scholar', desc:'90 day member', new:false },
+    { icon:'🚀', name:'Fast Starter', desc:'50 Qs in first week', new:false },
+    { icon:'💡', name:'Problem Solver', desc:'AI solver used 20 times', new:false },
+  ];
+  const locked = [
+    { icon:'👑', name:'CAT Conqueror', desc:'Score 99+ percentile in CAT' },
+    { icon:'🎖️', name:'Perfect Score', desc:'100% accuracy in a mock section' },
+    { icon:'📚', name:'Bookworm', desc:'Read 100 RC passages' },
+    { icon:'⭐', name:'Elite Member', desc:'365-day streak' },
+    { icon:'🔥', name:'Inferno', desc:'30-day streak' },
+    { icon:'🏅', name:'Marathon Runner', desc:'Solve 1000 questions' },
+    { icon:'💎', name:'Diamond', desc:'Top 100 global rank' },
+    { icon:'🌐', name:'All-Rounder', desc:'80%+ in all 5 subjects' },
+  ];
+  document.getElementById('badges-earned').innerHTML = earned.map(b =>
+    `<div class="badge-item${b.new?' new':''}"><span class="badge-icon">${b.icon}</span><div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div></div>`
+  ).join('');
+  document.getElementById('badges-locked').innerHTML = locked.map(b =>
+    `<div class="badge-item locked"><span class="badge-icon">${b.icon}</span><div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div></div>`
+  ).join('');
+}
+
+// ── COLLEGES ──
+function initColleges() {
+  const colleges = [
+    { name:'IIM Ahmedabad', course:'PGP 2026-28', cutoff:'99.5+', est:'95', bg:'#FFF3EE', color:'#CC3D00', status:'reach' },
+    { name:'IIM Bangalore',  course:'PGP 2026-28', cutoff:'99+',  est:'95', bg:'#EFF6FF', color:'#1D4ED8', status:'reach' },
+    { name:'IIM Calcutta',   course:'PGDM 2026-28',cutoff:'99+',  est:'95', bg:'#F5F3FF', color:'#5B21B6', status:'reach' },
+    { name:'FMS Delhi',      course:'MBA 2026-28',  cutoff:'98+',  est:'95', bg:'#F0FDF4', color:'#166534', status:'target' },
+    { name:'MDI Gurgaon',    course:'PGPM 2026-28', cutoff:'95+',  est:'95', bg:'#FFF7ED', color:'#9A3412', status:'safe' },
+    { name:'IIM Kozhikode',  course:'PGP 2026-28',  cutoff:'95+',  est:'95', bg:'#ECFEFF', color:'#0E7490', status:'safe' },
+  ];
+  document.getElementById('college-list').innerHTML = colleges.map(c => `
+    <div class="college-row">
+      <div class="college-logo" style="background:${c.bg};color:${c.color}">${c.name.split(' ').map(w=>w[0]).join('').slice(0,3)}</div>
+      <div class="college-info">
+        <div class="college-name">${c.name}</div>
+        <div class="college-detail">${c.course}</div>
+      </div>
+      <div class="college-cutoff">
+        <div style="color:var(--text-2)">${c.cutoff}%ile</div>
+        <span class="college-status cs-${c.status}">${c.status==='reach'?'Reach':c.status==='target'?'Target':'Safe'}</span>
+      </div>
+    </div>`).join('');
+
+  // Readiness chart
+  const ctx = document.getElementById('readinessChart').getContext('2d');
+  if (!window._readinessChart) {
+    window._readinessChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Quant Ready','Verbal Ready','LRDI Ready','DM Ready','GK Ready'],
+        datasets: [{ data: [78, 65, 58, 82, 51], backgroundColor: ['#059669','#7C3AED','#D97706','#2563EB','#0891B2'], borderWidth: 0, spacing: 3, borderRadius: 4 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, padding: 10, boxWidth: 12 } } }
+      }
+    });
+  }
+}
+
+// ── ACTIVITY FEED ──
+function renderActivity() {
+  const activities = [
+    { icon:'📝', bg:'#FFF3EE', title:'Completed CAT 2025 Mock #14', sub:'Score: 142/198 · 94th percentile', meta:'Today, 10:30am', score:'+12 pts' },
+    { icon:'✅', bg:'#ECFDF5', title:'Solved 18 Quantitative questions', sub:'Accuracy: 83% · Topics: Time & Work, Algebra', meta:'Yesterday, 6:15pm', score:'+54 pts' },
+    { icon:'💬', bg:'#F5F3FF', title:'Posted: "Complete CAT Quant strategy for 2025"', sub:'Received 12 kudos · 8 replies', meta:'2 days ago', score:'+12 🏅' },
+    { icon:'🔖', bg:'#FFFBEB', title:'Bookmarked 5 LRDI questions', sub:'Seating Arrangement sets — marked for revision', meta:'2 days ago', score:'' },
+    { icon:'🤖', bg:'#EFF6FF', title:'AI Tutor session — Decision Making', sub:'30 minutes · XAT DM framework discussion', meta:'3 days ago', score:'' },
+    { icon:'📝', bg:'#FFF3EE', title:'Completed SNAP 2025 Mock #3', sub:'Score: 88/100 · 92nd percentile', meta:'5 days ago', score:'+8 pts' },
+    { icon:'✅', bg:'#ECFDF5', title:'Solved 24 Verbal & RC questions', sub:'Accuracy: 71% · RC passages: 3 completed', meta:'6 days ago', score:'+48 pts' },
+    { icon:'🏆', bg:'#FFFBEB', title:'Earned badge: Speed Demon', sub:'Achieved average 60 seconds per question', meta:'1 week ago', score:'🥇 Badge' },
+    { icon:'💬', bg:'#F5F3FF', title:'Replied to: "XAT Decision Making approach"', sub:'Reply received 8 kudos', meta:'1 week ago', score:'+8 🏅' },
+    { icon:'📝', bg:'#FFF3EE', title:'Completed CAT 2025 Mock #13', sub:'Score: 136/198 · 93rd percentile', meta:'10 days ago', score:'+10 pts' },
+    { icon:'✅', bg:'#ECFDF5', title:'Solved 30 LRDI questions', sub:'Accuracy: 60% · Topics: Seating, Networks', meta:'11 days ago', score:'+42 pts' },
+    { icon:'🔥', bg:'#FFF3EE', title:'7-day streak milestone reached!', sub:'Earned: Week Warrior badge 🏅', meta:'2 weeks ago', score:'🔥 Streak' },
+  ];
+  document.getElementById('full-activity-feed').innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <div class="act-icon" style="background:${a.bg}">${a.icon}</div>
+      <div class="act-body">
+        <div class="act-title">${a.title}</div>
+        <div class="act-meta"><span>${a.meta}</span><span style="color:var(--text-3)">${a.sub}</span></div>
+      </div>
+      ${a.score ? `<div class="act-score">${a.score}</div>` : ''}
+    </div>`).join('');
+}
+
+// ── SETTINGS ──
+function saveSettings() {
+  const name = document.getElementById('s-name').value.trim();
+  if (name) {
+    document.getElementById('hero-name').textContent = name;
+    const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('avatar-initials').textContent = initials;
+  }
+  showToast('✅ Profile updated successfully!');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
